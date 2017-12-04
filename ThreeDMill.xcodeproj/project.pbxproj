@@ -1,0 +1,442 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 48;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		F2C38AA01FD5A2840092ADDA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F2C38A9F1FD5A2840092ADDA /* Assets.xcassets */; };
+		F2C38AA71FD5A2840092ADDA /* ThreeDMill MessagesExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = F2C38AA61FD5A2840092ADDA /* ThreeDMill MessagesExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		F2C38AAC1FD5A2840092ADDA /* Messages.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2C38AAB1FD5A2840092ADDA /* Messages.framework */; };
+		F2C38AAF1FD5A2840092ADDA /* MessagesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C38AAE1FD5A2840092ADDA /* MessagesViewController.swift */; };
+		F2C38AB21FD5A2840092ADDA /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F2C38AB01FD5A2840092ADDA /* MainInterface.storyboard */; };
+		F2C38AB41FD5A2840092ADDA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F2C38AB31FD5A2840092ADDA /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		F2C38AA81FD5A2840092ADDA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F2C38A961FD5A2840092ADDA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F2C38AA51FD5A2840092ADDA;
+			remoteInfo = "ThreeDMill MessagesExtension";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		F2C38ABB1FD5A2840092ADDA /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				F2C38AA71FD5A2840092ADDA /* ThreeDMill MessagesExtension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		F2C38A9C1FD5A2840092ADDA /* ThreeDMill.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ThreeDMill.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F2C38A9F1FD5A2840092ADDA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		F2C38AA11FD5A2840092ADDA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F2C38AA61FD5A2840092ADDA /* ThreeDMill MessagesExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "ThreeDMill MessagesExtension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		F2C38AAB1FD5A2840092ADDA /* Messages.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Messages.framework; path = System/Library/Frameworks/Messages.framework; sourceTree = SDKROOT; };
+		F2C38AAE1FD5A2840092ADDA /* MessagesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagesViewController.swift; sourceTree = "<group>"; };
+		F2C38AB11FD5A2840092ADDA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
+		F2C38AB31FD5A2840092ADDA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		F2C38AB51FD5A2840092ADDA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F2C38AA31FD5A2840092ADDA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F2C38AAC1FD5A2840092ADDA /* Messages.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		F2C38A951FD5A2840092ADDA = {
+			isa = PBXGroup;
+			children = (
+				F2C38A9E1FD5A2840092ADDA /* ThreeDMill */,
+				F2C38AAD1FD5A2840092ADDA /* ThreeDMill MessagesExtension */,
+				F2C38AAA1FD5A2840092ADDA /* Frameworks */,
+				F2C38A9D1FD5A2840092ADDA /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		F2C38A9D1FD5A2840092ADDA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F2C38A9C1FD5A2840092ADDA /* ThreeDMill.app */,
+				F2C38AA61FD5A2840092ADDA /* ThreeDMill MessagesExtension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F2C38A9E1FD5A2840092ADDA /* ThreeDMill */ = {
+			isa = PBXGroup;
+			children = (
+				F2C38A9F1FD5A2840092ADDA /* Assets.xcassets */,
+				F2C38AA11FD5A2840092ADDA /* Info.plist */,
+			);
+			path = ThreeDMill;
+			sourceTree = "<group>";
+		};
+		F2C38AAA1FD5A2840092ADDA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				F2C38AAB1FD5A2840092ADDA /* Messages.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		F2C38AAD1FD5A2840092ADDA /* ThreeDMill MessagesExtension */ = {
+			isa = PBXGroup;
+			children = (
+				F2C38AAE1FD5A2840092ADDA /* MessagesViewController.swift */,
+				F2C38AB01FD5A2840092ADDA /* MainInterface.storyboard */,
+				F2C38AB31FD5A2840092ADDA /* Assets.xcassets */,
+				F2C38AB51FD5A2840092ADDA /* Info.plist */,
+			);
+			path = "ThreeDMill MessagesExtension";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		F2C38A9B1FD5A2840092ADDA /* ThreeDMill */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F2C38ABC1FD5A2840092ADDA /* Build configuration list for PBXNativeTarget "ThreeDMill" */;
+			buildPhases = (
+				F2C38A9A1FD5A2840092ADDA /* Resources */,
+				F2C38ABB1FD5A2840092ADDA /* Embed App Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F2C38AA91FD5A2840092ADDA /* PBXTargetDependency */,
+			);
+			name = ThreeDMill;
+			productName = ThreeDMill;
+			productReference = F2C38A9C1FD5A2840092ADDA /* ThreeDMill.app */;
+			productType = "com.apple.product-type.application.messages";
+		};
+		F2C38AA51FD5A2840092ADDA /* ThreeDMill MessagesExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F2C38AB81FD5A2840092ADDA /* Build configuration list for PBXNativeTarget "ThreeDMill MessagesExtension" */;
+			buildPhases = (
+				F2C38AA21FD5A2840092ADDA /* Sources */,
+				F2C38AA31FD5A2840092ADDA /* Frameworks */,
+				F2C38AA41FD5A2840092ADDA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "ThreeDMill MessagesExtension";
+			productName = "ThreeDMill MessagesExtension";
+			productReference = F2C38AA61FD5A2840092ADDA /* ThreeDMill MessagesExtension.appex */;
+			productType = "com.apple.product-type.app-extension.messages";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F2C38A961FD5A2840092ADDA /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0910;
+				LastUpgradeCheck = 0910;
+				ORGANIZATIONNAME = dasdom;
+				TargetAttributes = {
+					F2C38A9B1FD5A2840092ADDA = {
+						CreatedOnToolsVersion = 9.1;
+						ProvisioningStyle = Automatic;
+					};
+					F2C38AA51FD5A2840092ADDA = {
+						CreatedOnToolsVersion = 9.1;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = F2C38A991FD5A2840092ADDA /* Build configuration list for PBXProject "ThreeDMill" */;
+			compatibilityVersion = "Xcode 8.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = F2C38A951FD5A2840092ADDA;
+			productRefGroup = F2C38A9D1FD5A2840092ADDA /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F2C38A9B1FD5A2840092ADDA /* ThreeDMill */,
+				F2C38AA51FD5A2840092ADDA /* ThreeDMill MessagesExtension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		F2C38A9A1FD5A2840092ADDA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F2C38AA01FD5A2840092ADDA /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F2C38AA41FD5A2840092ADDA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F2C38AB41FD5A2840092ADDA /* Assets.xcassets in Resources */,
+				F2C38AB21FD5A2840092ADDA /* MainInterface.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		F2C38AA21FD5A2840092ADDA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F2C38AAF1FD5A2840092ADDA /* MessagesViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		F2C38AA91FD5A2840092ADDA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F2C38AA51FD5A2840092ADDA /* ThreeDMill MessagesExtension */;
+			targetProxy = F2C38AA81FD5A2840092ADDA /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		F2C38AB01FD5A2840092ADDA /* MainInterface.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				F2C38AB11FD5A2840092ADDA /* Base */,
+			);
+			name = MainInterface.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		F2C38AB61FD5A2840092ADDA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.1;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		F2C38AB71FD5A2840092ADDA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		F2C38AB91FD5A2840092ADDA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "iMessage App Icon";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = Q6PD97MRX4;
+				INFOPLIST_FILE = "ThreeDMill MessagesExtension/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.swiftandpainless.ThreeDMill.MessagesExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		F2C38ABA1FD5A2840092ADDA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "iMessage App Icon";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = Q6PD97MRX4;
+				INFOPLIST_FILE = "ThreeDMill MessagesExtension/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.swiftandpainless.ThreeDMill.MessagesExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		F2C38ABD1FD5A2840092ADDA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = Q6PD97MRX4;
+				INFOPLIST_FILE = ThreeDMill/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = com.swiftandpainless.ThreeDMill;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		F2C38ABE1FD5A2840092ADDA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = Q6PD97MRX4;
+				INFOPLIST_FILE = ThreeDMill/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = com.swiftandpainless.ThreeDMill;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		F2C38A991FD5A2840092ADDA /* Build configuration list for PBXProject "ThreeDMill" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F2C38AB61FD5A2840092ADDA /* Debug */,
+				F2C38AB71FD5A2840092ADDA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F2C38AB81FD5A2840092ADDA /* Build configuration list for PBXNativeTarget "ThreeDMill MessagesExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F2C38AB91FD5A2840092ADDA /* Debug */,
+				F2C38ABA1FD5A2840092ADDA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F2C38ABC1FD5A2840092ADDA /* Build configuration list for PBXNativeTarget "ThreeDMill" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F2C38ABD1FD5A2840092ADDA /* Debug */,
+				F2C38ABE1FD5A2840092ADDA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = F2C38A961FD5A2840092ADDA /* Project object */;
+}
