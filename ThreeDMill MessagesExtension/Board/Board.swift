@@ -1,0 +1,709 @@
+//  Created by dasdom on 08.07.17.
+//  Copyright © 2017 dasdom. All rights reserved.
+//
+
+import Foundation
+import Messages
+
+extension Notification.Name {
+    static let numberOfRemainingSpheresChanged = Notification.Name("numberOfRemainingSpheresChanged")
+}
+
+enum BoardMode {
+    case addSpheres
+    case removeSphere
+    case game
+}
+
+final class Board {
+    
+    static let numberOfColumns = 4
+    var mode = BoardMode.addSpheres
+    private(set) var poles: [[Pole]]
+    private var remainingWhiteSpheres = 32
+    private var remainingRedSpheres = 32
+    private(set) var lastMoves: [Move] = []
+    
+    private var seenMills: [String] = []
+    
+    var url: URL {
+        var queryItems: [URLQueryItem] = []
+        for column in 0..<Board.numberOfColumns {
+            for row in 0..<Board.numberOfColumns {
+                let pole = poles[column][row]
+                var poleArray: [String] = []
+                for sphereColor in pole.sphereColors {
+                    poleArray.append("\(sphereColor)")
+                }
+                for move in lastMoves {
+                    if move.to.column == column, move.to.row == row {
+                        poleArray.removeLast()
+                    } else if move.from.column == column, move.from.row == row {
+                        poleArray.append(move.color.rawValue)
+                    }
+                }
+                if poleArray.count > 0 {
+                    queryItems.append(URLQueryItem(name: "\(column),\(row)", value: poleArray.joined(separator: ",")))
+                }
+            }
+        }
+        for move in lastMoves {
+            queryItems.append(URLQueryItem(name: "\(move.from.column),\(move.from.row),\(move.from.floor),\(move.to.column),\(move.to.row),\(move.to.floor)", value: move.color.rawValue))
+        }
+        
+        if seenMills.count > 0 {
+            queryItems.append(URLQueryItem(name: "seenMills", value: seenMills.joined(separator: ",")))
+        }
+        queryItems.append(URLQueryItem(name: "remainingWhite", value: "\(remainingWhiteSpheres)"))
+        queryItems.append(URLQueryItem(name: "remainingRed", value: "\(remainingRedSpheres)"))
+
+        var components = URLComponents()
+        components.queryItems = queryItems
+        guard let url = components.url else { fatalError() }
+        print("url: \(url)")
+        return url
+    }
+    
+    init(url: URL? = nil) {
+        poles = []
+        for _ in 0..<Board.numberOfColumns {
+            var column: [Pole] = []
+            for _ in 0..<Board.numberOfColumns {
+                column.append(Pole())
+            }
+            poles.append(column)
+        }
+        
+        guard let url = url else {
+            print("no url")
+            return
+        }
+        print("url: \(url)")
+        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
+            print("no components")
+            return
+        }
+        
+        guard let queryItems = components.queryItems else {
+            print("no queryItems")
+            return
+        }
+        
+        for queryItem in queryItems {
+            let nameComponents = queryItem.name.components(separatedBy: ",")
+            guard let value = queryItem.value else {
+                print("no value")
+                return
+            }
+            if nameComponents.count == 2 {
+                guard let column = Int(nameComponents[0]) else {
+                    print("no column")
+                    return
+                }
+                guard let row = Int(nameComponents[1]) else {
+                    print("no row")
+                    return
+                }
+                let valueComponents = value.components(separatedBy: ",")
+                let pole = poles[column][row]
+                for colorName in valueComponents {
+                    print("colorName: \(colorName)")
+                    
+                    guard let sphereColor = SphereColor(rawValue: colorName) else {
+                        print("no sphereColor")
+                        return
+                    }
+                    pole.add(color: sphereColor)
+                }
+                poles[column][row] = pole
+            } else if nameComponents.count == 6 {
+                guard let fromColumn = Int(nameComponents[0]) else { fatalError("no column") }
+                guard let fromRow = Int(nameComponents[1]) else { fatalError("no row") }
+                guard let fromFloor = Int(nameComponents[2]) else { fatalError("no floor") }
+                guard let toColumn = Int(nameComponents[3]) else { fatalError("no column") }
+                guard let toRow = Int(nameComponents[4]) else { fatalError("no row") }
+                guard let toFloor = Int(nameComponents[5]) else { fatalError("no floor") }
+                let from = Position(column: fromColumn, row: fromRow, floor: fromFloor)
+                let to = Position(column: toColumn, row: toRow, floor: toFloor)
+                guard let sphereColor = SphereColor(rawValue: value) else { fatalError("no color") }
+                let move = Move(from: from, to: to, color: sphereColor)
+                lastMoves.append(move)
+            } else if nameComponents.count == 1 {
+                let name = nameComponents[0]
+                if name == "seenMills" {
+                    seenMills = value.components(separatedBy: ",")
+                    print("seenMills: \(seenMills)")
+                } else if name == "remainingWhite" {
+                    guard let remainingWhiteInt = Int(value) else { fatalError() }
+                    remainingWhiteSpheres = remainingWhiteInt
+                } else if name == "remainingRed" {
+                    guard let remainingRedInt = Int(value) else { fatalError() }
+                    remainingRedSpheres = remainingRedInt
+                }
+            }
+            
+        }
+    }
+}
+
+// MARK: - BoardLogic
+extension Board {
+    func canAddSphereTo(column: Int, row: Int) -> Bool {
+        return poles[column][row].spheres < 4
+    }
+    
+    func canRemoveSphereFrom(column: Int, row: Int) -> Bool {
+        return poles[column][row].spheres > 0
+    }
+    
+    func addSphereWith(_ color: SphereColor, toColumn column: Int, andRow row: Int, updateRemainCount: Bool = true) throws {
+        guard canAddSphereTo(column: column, row: row) else {
+            throw BoardLogicError.poleFull
+        }
+
+        let floor = poles[column][row].sphereColors.count
+        let move = Move(from: Position(column: -1, row: -1, floor: -1), to: Position(column: column, row: row, floor: floor), color: color)
+        lastMoves = [move]
+        
+        poles[column][row].add(color: color)
+        
+        if updateRemainCount {
+            switch color {
+            case .red:
+                remainingRedSpheres -= 1
+            case .white:
+                remainingWhiteSpheres -= 1
+            }
+        }
+        
+        NotificationCenter.default.post(name: .numberOfRemainingSpheresChanged, object: nil, userInfo: [SphereColor.white: remainingWhiteSpheres, SphereColor.red: remainingRedSpheres])
+    }
+    
+    func removeSphereFrom(column: Int, andRow row: Int) throws {
+        guard canRemoveSphereFrom(column: column, row: row) else {
+            throw BoardLogicError.poleEmpty
+        }
+
+        if mode == .removeSphere {
+            let fromFloor = poles[column][row].sphereColors.count - 1
+            let from = Position(column: column, row: row, floor: fromFloor)
+            let to = Position(column: -1, row: -1, floor: -1)
+            guard let sphereColor = poles[column][row].sphereColors.last else { fatalError("no sphere color") }
+            let move = Move(from: from, to: to, color: sphereColor)
+            lastMoves.append(move)
+        }
+        
+        poles[column][row].remove()
+        
+    }
+    
+    func spheresAt(column: Int, row: Int) -> Int {
+        return poles[column][row].spheres
+    }
+    
+    func sphereColorAt(column: Int, row: Int, floor: Int) -> SphereColor? {
+        let pole = poles[column][row]
+        guard pole.spheres > floor else { return nil }
+        return poles[column][row].sphereColors[floor]
+    }
+    
+    func checkForMatch() -> [(Int, Int, Int)]? {
+        //        var result: [(Int,Int,Int)]? = checkForColumn()
+        let functions = [checkForColumn,
+                         checkForRow,
+                         checkForFloorDiagonal1,
+                         checkForFloorDiagonal2,
+                         checkForColumnDiagonal1,
+                         checkForColumnDiagonal2,
+                         checkForRowDiagonal1,
+                         checkForRowDiagonal2,
+                         checkForPole,
+                         checkForRoomDiagonal1,
+                         checkForRoomDiagonal2,
+                         checkForRoomDiagonal3,
+                         checkForRoomDiagonal4
+        ]
+        
+        var result: [(Int,Int,Int)]? = nil
+        var tempSeenMills: [String] = []
+        var tempResults: [[(Int,Int,Int)]] = []
+        for check in functions {
+            tempResults = check()
+            for tempResult in tempResults {
+                let resultString = tempResult.reduce("", {
+                    return $0 + "\($1.0)\($1.1)\($1.2)"
+                })
+                print("resultString: \(resultString)")
+                
+                if seenMills.contains(resultString) {
+                    tempSeenMills.append(resultString)
+                } else if result == nil {
+                    tempSeenMills.append(resultString)
+                    result = tempResult
+                } else {
+                    assert(false, "Unexpected! Fix!")
+                }
+                
+            }
+        }
+        seenMills = tempSeenMills
+        
+        return result
+    }
+    
+    func checkForColumn() -> [[(Int,Int,Int)]] {
+        var allResults: [[(Int,Int,Int)]] = []
+        var result: [(Int,Int,Int)]? = []
+        var firstColor: SphereColor?
+        floorLoop: for floor in 0..<Board.numberOfColumns {
+            columnLoop: for column in 0..<Board.numberOfColumns {
+                result = []
+                firstColor = nil
+                rowLoop: for row in 0..<Board.numberOfColumns {
+//                    if firstColor == nil {
+//                        firstColor = sphereColorAt(column: column, row: row, floor: floor)
+//                        guard firstColor != nil else {
+//                            result = nil
+//                            break rowLoop
+//                        }
+//                        result?.append((column,row,floor))
+//                    } else {
+//                        let color = sphereColorAt(column: column, row: row, floor: floor)
+//                        if color == firstColor {
+//                            result?.append((column,row,floor))
+//                        } else {
+//                            firstColor = nil
+//                            result = nil
+//                            break rowLoop
+//                        }
+//                    }
+                    let columnRowFloor = (column, row, floor)
+                    firstColor = sphereColor(inputColor: firstColor, columnRowFloor: columnRowFloor)
+                    result?.append(columnRowFloor)
+                    if firstColor == nil {
+                        result = nil
+                        break rowLoop
+                    }
+                }
+                if let unwrappedResult = result {
+                    allResults.append(unwrappedResult)
+                }
+            }
+        }
+        return allResults
+    }
+    
+    func sphereColor(inputColor: SphereColor?, columnRowFloor: (Int, Int, Int)) -> SphereColor? {
+        let (column, row, floor) = columnRowFloor
+        
+        let color = sphereColorAt(column: column, row: row, floor: floor)
+        
+        if inputColor == nil || color == inputColor {
+            return color
+        }
+        
+        return nil
+    }
+    
+    func checkForRow() -> [[(Int,Int,Int)]] {
+        var allResults: [[(Int,Int,Int)]] = []
+        var result: [(Int,Int,Int)]? = []
+        var firstColor: SphereColor?
+        floorLoop: for floor in 0..<Board.numberOfColumns {
+            rowLoop: for row in 0..<Board.numberOfColumns {
+                result = []
+                firstColor = nil
+                columnLoop: for column in 0..<Board.numberOfColumns {
+                    if firstColor == nil {
+                        firstColor = sphereColorAt(column: column, row: row, floor: floor)
+                        guard firstColor != nil else {
+                            result = nil
+                            break columnLoop
+                        }
+                        result?.append((column,row,floor))
+                    } else {
+                        let color = sphereColorAt(column: column, row: row, floor: floor)
+                        if color == firstColor {
+                            result?.append((column,row,floor))
+                        } else {
+                            firstColor = nil
+                            result = nil
+                            break columnLoop
+                        }
+                    }
+                }
+                if let unwrappedResult = result {
+                    allResults.append(unwrappedResult)
+                }
+            }
+        }
+        return allResults
+    }
+    
+    func checkForFloorDiagonal1() -> [[(Int,Int,Int)]] {
+        var allResults: [[(Int,Int,Int)]] = []
+        var result: [(Int,Int,Int)]? = []
+        var firstColor: SphereColor?
+        floorLoop: for floor in 0..<Board.numberOfColumns {
+            result = []
+            firstColor = nil
+            rowLoop: for row in 0..<Board.numberOfColumns {
+                if firstColor == nil {
+                    firstColor = sphereColorAt(column: row, row: row, floor: floor)
+                    guard firstColor != nil else {
+                        result = nil
+                        break rowLoop
+                    }
+                    result?.append((row,row,floor))
+                } else {
+                    let color = sphereColorAt(column: row, row: row, floor: floor)
+                    if color == firstColor {
+                        result?.append((row,row,floor))
+                    } else {
+                        firstColor = nil
+                        result = nil
+                        break rowLoop
+                    }
+                }
+            }
+            if let unwrappedResult = result {
+                allResults.append(unwrappedResult)
+            }
+        }
+        return allResults
+    }
+    
+    func checkForFloorDiagonal2() -> [[(Int,Int,Int)]] {
+        var allResults: [[(Int,Int,Int)]] = []
+        var result: [(Int,Int,Int)]? = []
+        var firstColor: SphereColor?
+        floorLoop: for floor in 0..<Board.numberOfColumns {
+            result = []
+            firstColor = nil
+            rowLoop: for column in 0..<Board.numberOfColumns {
+                let row = Board.numberOfColumns - 1 - column
+                if firstColor == nil {
+                    firstColor = sphereColorAt(column: column, row: row, floor: floor)
+                    guard firstColor != nil else {
+                        result = nil
+                        break rowLoop
+                    }
+                    result?.append((column,row,floor))
+                } else {
+                    let color = sphereColorAt(column: column, row: row, floor: floor)
+                    if color == firstColor {
+                        result?.append((column,row,floor))
+                    } else {
+                        firstColor = nil
+                        result = nil
+                        break rowLoop
+                    }
+                }
+            }
+            if let unwrappedResult = result {
+                allResults.append(unwrappedResult)
+            }
+        }
+        return allResults
+    }
+    
+    func checkForColumnDiagonal1() -> [[(Int,Int,Int)]] {
+        var allResults: [[(Int,Int,Int)]] = []
+        var result: [(Int,Int,Int)]? = []
+        var firstColor: SphereColor?
+        columnLoop: for column in 0..<Board.numberOfColumns {
+            result = []
+            firstColor = nil
+            rowLoop: for row in 0..<Board.numberOfColumns {
+                if firstColor == nil {
+                    firstColor = sphereColorAt(column: column, row: row, floor: row)
+                    guard firstColor != nil else {
+                        result = nil
+                        break rowLoop
+                    }
+                    result?.append((column,row,row))
+                } else {
+                    let color = sphereColorAt(column: column, row: row, floor: row)
+                    if color == firstColor {
+                        result?.append((column,row,row))
+                    } else {
+                        firstColor = nil
+                        result = nil
+                        break rowLoop
+                    }
+                }
+            }
+            if let unwrappedResult = result {
+                allResults.append(unwrappedResult)
+            }
+        }
+        return allResults
+    }
+    
+    func checkForColumnDiagonal2() -> [[(Int,Int,Int)]] {
+        var allResults: [[(Int,Int,Int)]] = []
+        var result: [(Int,Int,Int)]? = []
+        var firstColor: SphereColor?
+        columnLoop: for column in 0..<Board.numberOfColumns {
+            result = []
+            firstColor = nil
+            floorLoop: for floor in 0..<Board.numberOfColumns {
+                let row = Board.numberOfColumns - 1 - floor
+                if firstColor == nil {
+                    firstColor = sphereColorAt(column: column, row: row, floor: floor)
+                    guard firstColor != nil else {
+                        result = nil
+                        break floorLoop
+                    }
+                    result?.append((column,row,floor))
+                } else {
+                    let color = sphereColorAt(column: column, row: row, floor: floor)
+                    if color == firstColor {
+                        result?.append((column,row,floor))
+                    } else {
+                        firstColor = nil
+                        result = nil
+                        break floorLoop
+                    }
+                }
+            }
+            if let unwrappedResult = result {
+                allResults.append(unwrappedResult)
+            }
+        }
+        return allResults
+    }
+
+    func checkForRowDiagonal1() -> [[(Int,Int,Int)]] {
+        var allResults: [[(Int,Int,Int)]] = []
+        var result: [(Int,Int,Int)]? = []
+        var firstColor: SphereColor?
+        rowLoop: for row in 0..<Board.numberOfColumns {
+            result = []
+            firstColor = nil
+            columnLoop: for column in 0..<Board.numberOfColumns {
+                if firstColor == nil {
+                    firstColor = sphereColorAt(column: column, row: row, floor: column)
+                    guard firstColor != nil else {
+                        result = nil
+                        break columnLoop
+                    }
+                    result?.append((column,row,column))
+                } else {
+                    let color = sphereColorAt(column: column, row: row, floor: column)
+                    if color == firstColor {
+                        result?.append((column,row,column))
+                    } else {
+                        firstColor = nil
+                        result = nil
+                        break columnLoop
+                    }
+                }
+            }
+            if let unwrappedResult = result {
+                allResults.append(unwrappedResult)
+            }
+        }
+        return allResults
+    }
+
+    func checkForRowDiagonal2() -> [[(Int,Int,Int)]] {
+        var allResults: [[(Int,Int,Int)]] = []
+        var result: [(Int,Int,Int)]? = []
+        var firstColor: SphereColor?
+        columnLoop: for row in 0..<Board.numberOfColumns {
+            result = []
+            firstColor = nil
+            floorLoop: for floor in 0..<Board.numberOfColumns {
+                let column = Board.numberOfColumns - 1 - floor
+                if firstColor == nil {
+                    firstColor = sphereColorAt(column: column, row: row, floor: floor)
+                    guard firstColor != nil else {
+                        result = nil
+                        break floorLoop
+                    }
+                    result?.append((column,row,floor))
+                } else {
+                    let color = sphereColorAt(column: column, row: row, floor: floor)
+                    if color == firstColor {
+                        result?.append((column,row,floor))
+                    } else {
+                        firstColor = nil
+                        result = nil
+                        break floorLoop
+                    }
+                }
+            }
+            if let unwrappedResult = result {
+                allResults.append(unwrappedResult)
+            }
+        }
+        return allResults
+    }
+
+    func checkForPole() -> [[(Int, Int, Int)]] {
+        var allResults: [[(Int,Int,Int)]] = []
+        var result: [(Int,Int,Int)]? = []
+        var firstColor: SphereColor?
+        rowLoop: for row in 0..<Board.numberOfColumns {
+            columnLoop: for column in 0..<Board.numberOfColumns {
+                result = []
+                firstColor = nil
+                floorLoop: for floor in 0..<Board.numberOfColumns {
+                    if firstColor == nil {
+                        firstColor = sphereColorAt(column: column, row: row, floor: floor)
+                        guard firstColor != nil else {
+                            result = nil
+                            break floorLoop
+                        }
+                        result?.append((column,row,floor))
+                    } else {
+                        let color = sphereColorAt(column: column, row: row, floor: floor)
+                        if color == firstColor {
+                            result?.append((column,row,floor))
+                        } else {
+                            firstColor = nil
+                            result = nil
+                            break floorLoop
+                        }
+                    }
+                }
+                if let unwrappedResult = result {
+                    allResults.append(unwrappedResult)
+                }
+            }
+        }
+        return allResults
+    }
+
+    func checkForRoomDiagonal1() -> [[(Int,Int,Int)]] {
+        var result: [(Int,Int,Int)]? = []
+        var firstColor: SphereColor?
+        columnLoop: for column in 0..<Board.numberOfColumns {
+            if firstColor == nil {
+                firstColor = sphereColorAt(column: column, row: column, floor: column)
+                guard firstColor != nil else {
+                    result = nil
+                    break columnLoop
+                }
+                result?.append((column,column,column))
+            } else {
+                let color = sphereColorAt(column: column, row: column, floor: column)
+                if color == firstColor {
+                    result?.append((column,column,column))
+                } else {
+                    firstColor = nil
+                    result = nil
+                    break columnLoop
+                }
+            }
+        }
+        if let unwrappedResult = result {
+            return [unwrappedResult]
+        }
+        return []
+    }
+
+    func checkForRoomDiagonal2() -> [[(Int,Int,Int)]] {
+        var result: [(Int,Int,Int)]? = []
+        var firstColor: SphereColor?
+        columnLoop: for column in 0..<Board.numberOfColumns {
+            let row = Board.numberOfColumns - 1 - column
+            if firstColor == nil {
+                firstColor = sphereColorAt(column: column, row: row, floor: column)
+                guard firstColor != nil else {
+                    result = nil
+                    break columnLoop
+                }
+                result?.append((column,row,column))
+            } else {
+                let color = sphereColorAt(column: column, row: row, floor: column)
+                if color == firstColor {
+                    result?.append((column,row,column))
+                } else {
+                    firstColor = nil
+                    result = nil
+                    break columnLoop
+                }
+            }
+        }
+        if let unwrappedResult = result {
+            return [unwrappedResult]
+        }
+        return []
+    }
+
+    func checkForRoomDiagonal3() -> [[(Int,Int,Int)]] {
+        var result: [(Int,Int,Int)]? = []
+        var firstColor: SphereColor?
+        rowLoop: for row in 0..<Board.numberOfColumns {
+            let column = Board.numberOfColumns - 1 - row
+            if firstColor == nil {
+                firstColor = sphereColorAt(column: column, row: row, floor: row)
+                guard firstColor != nil else {
+                    result = nil
+                    break rowLoop
+                }
+                result?.append((column,row,row))
+            } else {
+                let color = sphereColorAt(column: column, row: row, floor: row)
+                if color == firstColor {
+                    result?.append((column,row,row))
+                } else {
+                    firstColor = nil
+                    result = nil
+                    break rowLoop
+                }
+            }
+        }
+        if let unwrappedResult = result {
+            return [unwrappedResult]
+        }
+        return []
+    }
+
+    func checkForRoomDiagonal4() -> [[(Int,Int,Int)]] {
+        var result: [(Int,Int,Int)]? = []
+        var firstColor: SphereColor?
+        floorLoop: for floor in 0..<Board.numberOfColumns {
+            let column = Board.numberOfColumns - 1 - floor
+            if firstColor == nil {
+                firstColor = sphereColorAt(column: column, row: column, floor: floor)
+                guard firstColor != nil else {
+                    result = nil
+                    break floorLoop
+                }
+                result?.append((column,column,floor))
+            } else {
+                let color = sphereColorAt(column: column, row: column, floor: floor)
+                if color == firstColor {
+                    result?.append((column,column,floor))
+                } else {
+                    firstColor = nil
+                    result = nil
+                    break floorLoop
+                }
+            }
+        }
+        if let unwrappedResult = result {
+            return [unwrappedResult]
+        }
+        return []
+    }
+    
+    enum BoardLogicError: Error {
+        case poleFull
+        case poleEmpty
+    }
+}
+
+extension Board {
+    convenience init?(message: MSMessage?) {
+//        guard let messageURL = message?.url else { return nil }
+        guard let messageURL = message?.url ??
+            URL(string: "?0,0=white,red&0,1=white,red&0,2=white&-1,-1,-1,0,2,1=red") else { return nil }
+//            URL(string: "?0,3=white&0,2=red,white&0,1=white,red,white&0,0=red,white&1,3=red&1,2=white,red&1,1=red,white,red&1,0=white,red&-1,-1,-1,0,0,2=red") else { return nil }
+
+        self.init(url: messageURL)
+    }
+}

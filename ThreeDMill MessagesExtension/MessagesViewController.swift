@@ -1,8 +1,8 @@
 //
 //  MessagesViewController.swift
-//  ThreeDMill MessagesExtension
+//  MessageAppDemo MessagesExtension
 //
-//  Created by dasdom on 04.12.17.
+//  Created by dasdom on 03.12.17.
 //  Copyright © 2017 dasdom. All rights reserved.
 //
 
@@ -24,10 +24,9 @@ class MessagesViewController: MSMessagesAppViewController {
     // MARK: - Conversation Handling
     
     override func willBecomeActive(with conversation: MSConversation) {
-        // Called when the extension is about to move from the inactive to active state.
-        // This will happen when the extension is about to present UI.
+        super.willBecomeActive(with: conversation)
         
-        // Use this method to configure the extension and restore previously stored state.
+        presentViewController(for: conversation, with: presentationStyle)
     }
     
     override func didResignActive(with conversation: MSConversation) {
@@ -68,5 +67,69 @@ class MessagesViewController: MSMessagesAppViewController {
     
         // Use this method to finalize any behaviors associated with the change in presentation style.
     }
+    
+    private func presentViewController(for conversation: MSConversation, with presentationStyle: MSMessagesAppPresentationStyle) {
+        // Remove any child view controllers that have been presented.
+        removeAllChildViewControllers()
+        
+        // Determine the controller to present.
+        let board = Board(message: conversation.selectedMessage) ?? Board()
+        let controller = GameViewController(board: board)
+        controller.delegate = self
+        
+        // Embed the new controller.
+        addChildViewController(controller)
+        
+        controller.view.frame = view.bounds
+        controller.view.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(controller.view)
+        
+        NSLayoutConstraint.activate([
+            controller.view.leftAnchor.constraint(equalTo: view.leftAnchor),
+            controller.view.rightAnchor.constraint(equalTo: view.rightAnchor),
+            controller.view.topAnchor.constraint(equalTo: view.topAnchor),
+            controller.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            ])
+        
+        controller.didMove(toParentViewController: self)
+    }
+    
+    private func removeAllChildViewControllers() {
+        for child in childViewControllers {
+            child.willMove(toParentViewController: nil)
+            child.view.removeFromSuperview()
+            child.removeFromParentViewController()
+        }
+    }
+    
+    fileprivate func composeMessage(with board: Board, caption: String, session: MSSession? = nil) -> MSMessage {
+        
+        let layout = MSMessageTemplateLayout()
+//        layout.image = board.renderSticker(opaque: true)
+        layout.caption = caption
+        
+        let message = MSMessage(session: session ?? MSSession())
+        message.url = board.url
+        message.layout = layout
+        
+        return message
+    }
+}
 
+extension MessagesViewController: GameViewControllerProtocol {
+    func gameViewController(_ controller: GameViewController, didFinishMoveWith board: Board) {
+        
+        guard let conversation = activeConversation else { fatalError("Expected a conversation") }
+
+        let message = composeMessage(with: board, caption: "Foo", session: conversation.selectedMessage?.session)
+        
+        // Add the message to the conversation.
+        conversation.insert(message) { error in
+            if let error = error {
+                print(error)
+            }
+        }
+        
+        dismiss()
+    }
 }
