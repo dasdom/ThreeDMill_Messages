@@ -23,6 +23,7 @@ final class Board {
     private var remainingWhiteSpheres = 32
     private var remainingRedSpheres = 32
     private(set) var lastMoves: [Move] = []
+    private var columnsRowsWithRemovableSpheres: [String] = []
     
     private var seenMills: [String] = []
     
@@ -153,6 +154,9 @@ extension Board {
     }
     
     func canRemoveSphereFrom(column: Int, row: Int) -> Bool {
+        if mode == .removeSphere, !columnsRowsWithRemovableSpheres.contains("\(column)\(row)") {
+            return false
+        }
         return poles[column][row].spheres > 0
     }
     
@@ -197,6 +201,32 @@ extension Board {
         
     }
     
+    func columnsRowsWithRemovableSpheresFor(sphereColor: SphereColor) -> [(Int, Int)] {
+       
+        var sphereIdInMills: [String] = []
+        for mill in seenMills {
+            for millId in mill.components(separatedBy: ".") {
+                sphereIdInMills.append(millId)
+            }
+        }
+        
+        var columnRows: [(Int, Int)] = []
+        for column in 0..<Board.numberOfColumns {
+            for row in 0..<Board.numberOfColumns {
+                let count = poles[column][row].sphereColors.count
+                if count < 1 || sphereIdInMills.contains("\(column)\(row)\(count-1)") {
+                    continue
+                }
+                if let removableSphere = poles[column][row].sphereColors.last, removableSphere == sphereColor {
+                    columnRows.append((column, row))
+                }
+            }
+        }
+        
+        columnsRowsWithRemovableSpheres = columnRows.map { "\($0.0)\($0.1)" }
+        return columnRows
+    }
+    
     func spheresAt(column: Int, row: Int) -> Int {
         return poles[column][row].spheres
     }
@@ -230,9 +260,13 @@ extension Board {
         for check in functions {
             tempResults = check()
             for tempResult in tempResults {
-                let resultString = tempResult.reduce("", {
-                    return $0 + "\($1.0)\($1.1)\($1.2)"
-                })
+                let resultStringArray = tempResult.map {
+                    return "\($0.0)\($0.1)\($0.2)"
+                }
+//                let resultString = tempResult.reduce("", {
+//                    return $0 + ".\($1.0)\($1.1)\($1.2)"
+//                })
+                let resultString = resultStringArray.joined(separator: ".")
                 print("resultString: \(resultString)")
                 
                 if seenMills.contains(resultString) {
@@ -251,48 +285,6 @@ extension Board {
         return result
     }
     
-    func checkForColumn() -> [[(Int,Int,Int)]] {
-        var allResults: [[(Int,Int,Int)]] = []
-        var result: [(Int,Int,Int)]? = []
-        var firstColor: SphereColor?
-        floorLoop: for floor in 0..<Board.numberOfColumns {
-            columnLoop: for column in 0..<Board.numberOfColumns {
-                result = []
-                firstColor = nil
-                rowLoop: for row in 0..<Board.numberOfColumns {
-//                    if firstColor == nil {
-//                        firstColor = sphereColorAt(column: column, row: row, floor: floor)
-//                        guard firstColor != nil else {
-//                            result = nil
-//                            break rowLoop
-//                        }
-//                        result?.append((column,row,floor))
-//                    } else {
-//                        let color = sphereColorAt(column: column, row: row, floor: floor)
-//                        if color == firstColor {
-//                            result?.append((column,row,floor))
-//                        } else {
-//                            firstColor = nil
-//                            result = nil
-//                            break rowLoop
-//                        }
-//                    }
-                    let columnRowFloor = (column, row, floor)
-                    firstColor = sphereColor(inputColor: firstColor, columnRowFloor: columnRowFloor)
-                    result?.append(columnRowFloor)
-                    if firstColor == nil {
-                        result = nil
-                        break rowLoop
-                    }
-                }
-                if let unwrappedResult = result {
-                    allResults.append(unwrappedResult)
-                }
-            }
-        }
-        return allResults
-    }
-    
     func sphereColor(inputColor: SphereColor?, columnRowFloor: (Int, Int, Int)) -> SphereColor? {
         let (column, row, floor) = columnRowFloor
         
@@ -304,6 +296,33 @@ extension Board {
         
         return nil
     }
+
+    func checkForColumn() -> [[(Int,Int,Int)]] {
+        var allResults: [[(Int,Int,Int)]] = []
+        var result: [(Int,Int,Int)]? = []
+        var firstColor: SphereColor?
+        floorLoop: for floor in 0..<Board.numberOfColumns {
+            columnLoop: for column in 0..<Board.numberOfColumns {
+                result = []
+                firstColor = nil
+                rowLoop: for row in 0..<Board.numberOfColumns {
+                   
+                    let columnRowFloor = (column, row, floor)
+                    firstColor = sphereColor(inputColor: firstColor, columnRowFloor: columnRowFloor)
+                    result?.append(columnRowFloor)
+                    if firstColor == nil {
+                        result = nil
+                        break rowLoop
+                    }
+                    
+                }
+                if let unwrappedResult = result {
+                    allResults.append(unwrappedResult)
+                }
+            }
+        }
+        return allResults
+    }
     
     func checkForRow() -> [[(Int,Int,Int)]] {
         var allResults: [[(Int,Int,Int)]] = []
@@ -314,23 +333,15 @@ extension Board {
                 result = []
                 firstColor = nil
                 columnLoop: for column in 0..<Board.numberOfColumns {
+                    
+                    let columnRowFloor = (column, row, floor)
+                    firstColor = sphereColor(inputColor: firstColor, columnRowFloor: columnRowFloor)
+                    result?.append(columnRowFloor)
                     if firstColor == nil {
-                        firstColor = sphereColorAt(column: column, row: row, floor: floor)
-                        guard firstColor != nil else {
-                            result = nil
-                            break columnLoop
-                        }
-                        result?.append((column,row,floor))
-                    } else {
-                        let color = sphereColorAt(column: column, row: row, floor: floor)
-                        if color == firstColor {
-                            result?.append((column,row,floor))
-                        } else {
-                            firstColor = nil
-                            result = nil
-                            break columnLoop
-                        }
+                        result = nil
+                        break columnLoop
                     }
+                    
                 }
                 if let unwrappedResult = result {
                     allResults.append(unwrappedResult)
@@ -348,23 +359,15 @@ extension Board {
             result = []
             firstColor = nil
             rowLoop: for row in 0..<Board.numberOfColumns {
+                
+                let columnRowFloor = (row, row, floor)
+                firstColor = sphereColor(inputColor: firstColor, columnRowFloor: columnRowFloor)
+                result?.append(columnRowFloor)
                 if firstColor == nil {
-                    firstColor = sphereColorAt(column: row, row: row, floor: floor)
-                    guard firstColor != nil else {
-                        result = nil
-                        break rowLoop
-                    }
-                    result?.append((row,row,floor))
-                } else {
-                    let color = sphereColorAt(column: row, row: row, floor: floor)
-                    if color == firstColor {
-                        result?.append((row,row,floor))
-                    } else {
-                        firstColor = nil
-                        result = nil
-                        break rowLoop
-                    }
+                    result = nil
+                    break rowLoop
                 }
+                
             }
             if let unwrappedResult = result {
                 allResults.append(unwrappedResult)
@@ -381,24 +384,17 @@ extension Board {
             result = []
             firstColor = nil
             rowLoop: for column in 0..<Board.numberOfColumns {
+                
                 let row = Board.numberOfColumns - 1 - column
+                
+                let columnRowFloor = (column, row, floor)
+                firstColor = sphereColor(inputColor: firstColor, columnRowFloor: columnRowFloor)
+                result?.append(columnRowFloor)
                 if firstColor == nil {
-                    firstColor = sphereColorAt(column: column, row: row, floor: floor)
-                    guard firstColor != nil else {
-                        result = nil
-                        break rowLoop
-                    }
-                    result?.append((column,row,floor))
-                } else {
-                    let color = sphereColorAt(column: column, row: row, floor: floor)
-                    if color == firstColor {
-                        result?.append((column,row,floor))
-                    } else {
-                        firstColor = nil
-                        result = nil
-                        break rowLoop
-                    }
+                    result = nil
+                    break rowLoop
                 }
+                
             }
             if let unwrappedResult = result {
                 allResults.append(unwrappedResult)
@@ -415,23 +411,15 @@ extension Board {
             result = []
             firstColor = nil
             rowLoop: for row in 0..<Board.numberOfColumns {
+                
+                let columnRowFloor = (column, row, row)
+                firstColor = sphereColor(inputColor: firstColor, columnRowFloor: columnRowFloor)
+                result?.append(columnRowFloor)
                 if firstColor == nil {
-                    firstColor = sphereColorAt(column: column, row: row, floor: row)
-                    guard firstColor != nil else {
-                        result = nil
-                        break rowLoop
-                    }
-                    result?.append((column,row,row))
-                } else {
-                    let color = sphereColorAt(column: column, row: row, floor: row)
-                    if color == firstColor {
-                        result?.append((column,row,row))
-                    } else {
-                        firstColor = nil
-                        result = nil
-                        break rowLoop
-                    }
+                    result = nil
+                    break rowLoop
                 }
+                
             }
             if let unwrappedResult = result {
                 allResults.append(unwrappedResult)
@@ -448,24 +436,17 @@ extension Board {
             result = []
             firstColor = nil
             floorLoop: for floor in 0..<Board.numberOfColumns {
+                
                 let row = Board.numberOfColumns - 1 - floor
+                
+                let columnRowFloor = (column, row, floor)
+                firstColor = sphereColor(inputColor: firstColor, columnRowFloor: columnRowFloor)
+                result?.append(columnRowFloor)
                 if firstColor == nil {
-                    firstColor = sphereColorAt(column: column, row: row, floor: floor)
-                    guard firstColor != nil else {
-                        result = nil
-                        break floorLoop
-                    }
-                    result?.append((column,row,floor))
-                } else {
-                    let color = sphereColorAt(column: column, row: row, floor: floor)
-                    if color == firstColor {
-                        result?.append((column,row,floor))
-                    } else {
-                        firstColor = nil
-                        result = nil
-                        break floorLoop
-                    }
+                    result = nil
+                    break floorLoop
                 }
+                
             }
             if let unwrappedResult = result {
                 allResults.append(unwrappedResult)
@@ -482,23 +463,15 @@ extension Board {
             result = []
             firstColor = nil
             columnLoop: for column in 0..<Board.numberOfColumns {
+                
+                let columnRowFloor = (column, row, column)
+                firstColor = sphereColor(inputColor: firstColor, columnRowFloor: columnRowFloor)
+                result?.append(columnRowFloor)
                 if firstColor == nil {
-                    firstColor = sphereColorAt(column: column, row: row, floor: column)
-                    guard firstColor != nil else {
-                        result = nil
-                        break columnLoop
-                    }
-                    result?.append((column,row,column))
-                } else {
-                    let color = sphereColorAt(column: column, row: row, floor: column)
-                    if color == firstColor {
-                        result?.append((column,row,column))
-                    } else {
-                        firstColor = nil
-                        result = nil
-                        break columnLoop
-                    }
+                    result = nil
+                    break columnLoop
                 }
+                
             }
             if let unwrappedResult = result {
                 allResults.append(unwrappedResult)
@@ -515,24 +488,17 @@ extension Board {
             result = []
             firstColor = nil
             floorLoop: for floor in 0..<Board.numberOfColumns {
+                
                 let column = Board.numberOfColumns - 1 - floor
+                
+                let columnRowFloor = (column, row, floor)
+                firstColor = sphereColor(inputColor: firstColor, columnRowFloor: columnRowFloor)
+                result?.append(columnRowFloor)
                 if firstColor == nil {
-                    firstColor = sphereColorAt(column: column, row: row, floor: floor)
-                    guard firstColor != nil else {
-                        result = nil
-                        break floorLoop
-                    }
-                    result?.append((column,row,floor))
-                } else {
-                    let color = sphereColorAt(column: column, row: row, floor: floor)
-                    if color == firstColor {
-                        result?.append((column,row,floor))
-                    } else {
-                        firstColor = nil
-                        result = nil
-                        break floorLoop
-                    }
+                    result = nil
+                    break floorLoop
                 }
+                
             }
             if let unwrappedResult = result {
                 allResults.append(unwrappedResult)
@@ -550,23 +516,15 @@ extension Board {
                 result = []
                 firstColor = nil
                 floorLoop: for floor in 0..<Board.numberOfColumns {
+                    
+                    let columnRowFloor = (column, row, floor)
+                    firstColor = sphereColor(inputColor: firstColor, columnRowFloor: columnRowFloor)
+                    result?.append(columnRowFloor)
                     if firstColor == nil {
-                        firstColor = sphereColorAt(column: column, row: row, floor: floor)
-                        guard firstColor != nil else {
-                            result = nil
-                            break floorLoop
-                        }
-                        result?.append((column,row,floor))
-                    } else {
-                        let color = sphereColorAt(column: column, row: row, floor: floor)
-                        if color == firstColor {
-                            result?.append((column,row,floor))
-                        } else {
-                            firstColor = nil
-                            result = nil
-                            break floorLoop
-                        }
+                        result = nil
+                        break floorLoop
                     }
+                    
                 }
                 if let unwrappedResult = result {
                     allResults.append(unwrappedResult)
@@ -580,23 +538,15 @@ extension Board {
         var result: [(Int,Int,Int)]? = []
         var firstColor: SphereColor?
         columnLoop: for column in 0..<Board.numberOfColumns {
+            
+            let columnRowFloor = (column, column, column)
+            firstColor = sphereColor(inputColor: firstColor, columnRowFloor: columnRowFloor)
+            result?.append(columnRowFloor)
             if firstColor == nil {
-                firstColor = sphereColorAt(column: column, row: column, floor: column)
-                guard firstColor != nil else {
-                    result = nil
-                    break columnLoop
-                }
-                result?.append((column,column,column))
-            } else {
-                let color = sphereColorAt(column: column, row: column, floor: column)
-                if color == firstColor {
-                    result?.append((column,column,column))
-                } else {
-                    firstColor = nil
-                    result = nil
-                    break columnLoop
-                }
+                result = nil
+                break columnLoop
             }
+            
         }
         if let unwrappedResult = result {
             return [unwrappedResult]
@@ -608,24 +558,17 @@ extension Board {
         var result: [(Int,Int,Int)]? = []
         var firstColor: SphereColor?
         columnLoop: for column in 0..<Board.numberOfColumns {
+            
             let row = Board.numberOfColumns - 1 - column
+            
+            let columnRowFloor = (column, row, column)
+            firstColor = sphereColor(inputColor: firstColor, columnRowFloor: columnRowFloor)
+            result?.append(columnRowFloor)
             if firstColor == nil {
-                firstColor = sphereColorAt(column: column, row: row, floor: column)
-                guard firstColor != nil else {
-                    result = nil
-                    break columnLoop
-                }
-                result?.append((column,row,column))
-            } else {
-                let color = sphereColorAt(column: column, row: row, floor: column)
-                if color == firstColor {
-                    result?.append((column,row,column))
-                } else {
-                    firstColor = nil
-                    result = nil
-                    break columnLoop
-                }
+                result = nil
+                break columnLoop
             }
+            
         }
         if let unwrappedResult = result {
             return [unwrappedResult]
@@ -637,24 +580,17 @@ extension Board {
         var result: [(Int,Int,Int)]? = []
         var firstColor: SphereColor?
         rowLoop: for row in 0..<Board.numberOfColumns {
+            
             let column = Board.numberOfColumns - 1 - row
+            
+            let columnRowFloor = (column, row, row)
+            firstColor = sphereColor(inputColor: firstColor, columnRowFloor: columnRowFloor)
+            result?.append(columnRowFloor)
             if firstColor == nil {
-                firstColor = sphereColorAt(column: column, row: row, floor: row)
-                guard firstColor != nil else {
-                    result = nil
-                    break rowLoop
-                }
-                result?.append((column,row,row))
-            } else {
-                let color = sphereColorAt(column: column, row: row, floor: row)
-                if color == firstColor {
-                    result?.append((column,row,row))
-                } else {
-                    firstColor = nil
-                    result = nil
-                    break rowLoop
-                }
+                result = nil
+                break rowLoop
             }
+            
         }
         if let unwrappedResult = result {
             return [unwrappedResult]
@@ -666,24 +602,17 @@ extension Board {
         var result: [(Int,Int,Int)]? = []
         var firstColor: SphereColor?
         floorLoop: for floor in 0..<Board.numberOfColumns {
+            
             let column = Board.numberOfColumns - 1 - floor
+            
+            let columnRowFloor = (column, column, floor)
+            firstColor = sphereColor(inputColor: firstColor, columnRowFloor: columnRowFloor)
+            result?.append(columnRowFloor)
             if firstColor == nil {
-                firstColor = sphereColorAt(column: column, row: column, floor: floor)
-                guard firstColor != nil else {
-                    result = nil
-                    break floorLoop
-                }
-                result?.append((column,column,floor))
-            } else {
-                let color = sphereColorAt(column: column, row: column, floor: floor)
-                if color == firstColor {
-                    result?.append((column,column,floor))
-                } else {
-                    firstColor = nil
-                    result = nil
-                    break floorLoop
-                }
+                result = nil
+                break floorLoop
             }
+            
         }
         if let unwrappedResult = result {
             return [unwrappedResult]
@@ -701,7 +630,7 @@ extension Board {
     convenience init?(message: MSMessage?) {
 //        guard let messageURL = message?.url else { return nil }
         guard let messageURL = message?.url ??
-            URL(string: "?0,0=white,red&0,1=white,red&0,2=white&-1,-1,-1,0,2,1=red") else { return nil }
+            URL(string: "?0,0=white,red&0,1=white,red&0,2=white&1,0=white,red&1,1=white,red&1,2=white,red&1,3=white,red&-1,-1,-1,0,2,1=red&seenMills=100.110.120.130,101.111.121.131") else { return nil }
 //            URL(string: "?0,3=white&0,2=red,white&0,1=white,red,white&0,0=red,white&1,3=red&1,2=white,red&1,1=red,white,red&1,0=white,red&-1,-1,-1,0,0,2=red") else { return nil }
 
         self.init(url: messageURL)

@@ -63,13 +63,14 @@ class GameView: SCNView, GameViewProtocol {
         
         let boardWidth: Float = 22
         let poleSpacing = boardWidth/3.0
-        let poleGeometry = SCNCylinder(radius: 1.4, height: 24)
-        let poleMaterial = SCNMaterial()
-        poleMaterial.diffuse.contents = UIColor.yellow.withAlphaComponent(0.8)
-        poleGeometry.materials = [poleMaterial]
+        
         for j in 0..<Board.numberOfColumns {
             var columnNodes: [SCNNode] = []
             for i in 0..<Board.numberOfColumns {
+                let poleGeometry = SCNCylinder(radius: 1.4, height: 24)
+                let poleMaterial = SCNMaterial()
+                poleMaterial.diffuse.contents = UIColor.yellow.withAlphaComponent(0.8)
+                poleGeometry.materials = [poleMaterial]
                 let poleNode = SCNNode(geometry: poleGeometry)
                 poleNode.position = SCNVector3(x: poleSpacing*Float(i) - boardWidth/2.0, y: 5, z: poleSpacing*Float(j) - boardWidth/2.0)
                 
@@ -292,6 +293,16 @@ class GameView: SCNView, GameViewProtocol {
     
     func poleNode(column: Int, row: Int) -> SCNNode {
         return poleNodes[column][row]
+    }
+    
+    func color(polesColumnAndRows: [(Int, Int)]) {
+        let poleMaterial = SCNMaterial()
+        poleMaterial.diffuse.contents = UIColor.green.withAlphaComponent(0.8)
+        for columnRow in polesColumnAndRows {
+            let poleNode = poleNodes[columnRow.0][columnRow.1]
+            
+            poleNode.geometry?.materials = [poleMaterial]
+        }
     }
 }
 

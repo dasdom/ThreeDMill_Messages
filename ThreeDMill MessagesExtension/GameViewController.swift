@@ -281,7 +281,7 @@ extension GameViewController {
     
     @objc func updateButton() {
         guard let interval = timerStartDate?.timeIntervalSinceNow else { return }
-        let remaining = 1+Int(interval)
+        let remaining = 3+Int(interval)
         if remaining < 0 {
             done(sender: nil)
         } else {
@@ -309,6 +309,10 @@ extension GameViewController {
     }
     
     private func removeSphereFrom(node: SCNNode, column: Int, row: Int) {
+        
+        if !board.canRemoveSphereFrom(column: column, row: row) {
+            return
+        }
         
         var position = node.position
         position.y = 20
@@ -340,11 +344,14 @@ extension GameViewController {
         if let result = board.checkForMatch() {
             
             let colorToRemove: String
+            let sphereColorToRemove: SphereColor
             switch sphereNode.color {
             case .red:
                 colorToRemove = "white"
+                sphereColorToRemove = .white
             case .white:
                 colorToRemove = "red"
+                sphereColorToRemove = .red
             }
             
             let alertController = UIAlertController(title: "Mill", message: "Mill: \(result)\nYou can now remove a \(colorToRemove) sphere from the board.", preferredStyle: .alert)
@@ -352,10 +359,16 @@ extension GameViewController {
             let okAction = UIAlertAction(title: "OK", style: .default, handler: { action in
                 
                 self.board.mode = .removeSphere
+    
+                let columnAndRows = self.board.columnsRowsWithRemovableSpheresFor(sphereColor: sphereColorToRemove)
+                print("columnAndRows: \(columnAndRows)")
+                self.contentView.color(polesColumnAndRows: columnAndRows)
+                
             })
             
             alertController.addAction(okAction)
             present(alertController, animated: true, completion: nil)
+            
             
             return true
         }
