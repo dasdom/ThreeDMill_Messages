@@ -12,7 +12,8 @@ extension Notification.Name {
 enum BoardMode {
     case addSpheres
     case removeSphere
-    case game
+    case move(color: SphereColor)
+    case surrender
 }
 
 final class Board {
@@ -24,11 +25,23 @@ final class Board {
     private var remainingRedSpheres = 32
     private(set) var lastMoves: [Move] = []
     private var columnsRowsWithRemovableSpheres: [String] = []
+    var surrendered = false
     
     private var seenMills: [String] = []
     
     var url: URL {
         var queryItems: [URLQueryItem] = []
+        
+        if case .surrender = mode {
+            queryItems.append(URLQueryItem(name: "surrendered", value: "true"))
+            
+            var components = URLComponents()
+            components.queryItems = queryItems
+            guard let url = components.url else { fatalError() }
+            print("url: \(url)")
+            return url
+        }
+        
         for column in 0..<Board.numberOfColumns {
             for row in 0..<Board.numberOfColumns {
                 let pole = poles[column][row]
@@ -140,10 +153,32 @@ final class Board {
                 } else if name == "remainingRed" {
                     guard let remainingRedInt = Int(value) else { fatalError() }
                     remainingRedSpheres = remainingRedInt
+                } else if name == "surrendered" {
+                    surrendered = true
                 }
             }
-            
         }
+        print("lastMoves: \(lastMoves)")
+        
+        if remainingRedSpheres < 1, remainingWhiteSpheres < 1 {
+            guard let lastMove = lastMoves.last else { fatalError("No last move? How is that possible?") }
+            if lastMove.to.column < 0 {
+                mode = .move(color: lastMove.color)
+            } else {
+                switch lastMove.color {
+                case .red:
+                    mode = .move(color: .white)
+                default:
+                    mode = .move(color: .red)
+                }
+            }
+        } else {
+            mode = .addSpheres
+        }
+    }
+    
+    func resetLastMoves() {
+        lastMoves = []
     }
 }
 
@@ -154,7 +189,7 @@ extension Board {
     }
     
     func canRemoveSphereFrom(column: Int, row: Int) -> Bool {
-        if mode == .removeSphere, !columnsRowsWithRemovableSpheres.contains("\(column)\(row)") {
+        if case .removeSphere = mode, !columnsRowsWithRemovableSpheres.contains("\(column)\(row)") {
             return false
         }
         return poles[column][row].spheres > 0
@@ -164,10 +199,17 @@ extension Board {
         guard canAddSphereTo(column: column, row: row) else {
             throw BoardLogicError.poleFull
         }
-
+        
         let floor = poles[column][row].sphereColors.count
-        let move = Move(from: Position(column: -1, row: -1, floor: -1), to: Position(column: column, row: row, floor: floor), color: color)
-        lastMoves = [move]
+        let move: Move
+        if let previousMove = lastMoves.first {
+            let from = previousMove.from
+            move = Move(from: Position(column: from.column, row: from.row, floor: from.floor), to: Position(column: column, row: row, floor: floor), color: color)
+            lastMoves = [move]
+        } else {
+            move = Move(from: Position(column: -1, row: -1, floor: -1), to: Position(column: column, row: row, floor: floor), color: color)
+            lastMoves.append(move)
+        }
         
         poles[column][row].add(color: color)
         
@@ -188,7 +230,10 @@ extension Board {
             throw BoardLogicError.poleEmpty
         }
 
-        if mode == .removeSphere {
+        switch mode {
+        case .addSpheres:
+            print("do nothing")
+        default:            
             let fromFloor = poles[column][row].sphereColors.count - 1
             let from = Position(column: column, row: row, floor: fromFloor)
             let to = Position(column: -1, row: -1, floor: -1)
@@ -196,6 +241,7 @@ extension Board {
             let move = Move(from: from, to: to, color: sphereColor)
             lastMoves.append(move)
         }
+        
         
         poles[column][row].remove()
         
@@ -628,10 +674,9 @@ extension Board {
 
 extension Board {
     convenience init?(message: MSMessage?) {
-//        guard let messageURL = message?.url else { return nil }
-        guard let messageURL = message?.url ??
-            URL(string: "?0,0=white,red&0,1=white,red&0,2=white&1,0=white,red&1,1=white,red&1,2=white,red&1,3=white,red&-1,-1,-1,0,2,1=red&seenMills=100.110.120.130,101.111.121.131") else { return nil }
-//            URL(string: "?0,3=white&0,2=red,white&0,1=white,red,white&0,0=red,white&1,3=red&1,2=white,red&1,1=red,white,red&1,0=white,red&-1,-1,-1,0,0,2=red") else { return nil }
+        guard let messageURL = message?.url else { return nil }
+//        guard let messageURL = message?.url ??
+//            URL(string: "?0,0=white,red&0,1=white,red&0,2=white&1,0=white,red&1,1=white,red&1,2=white,red&1,3=white,red&-1,-1,-1,0,2,1=white&remainingRed=0&remainingWhite=0&seenMills=100.110.120.130,101.111.121.131") else { return nil }
 
         self.init(url: messageURL)
     }

@@ -14,6 +14,7 @@ class GameViewController: UIViewController {
     private var timer: Timer?
     private var timerStartDate: Date?
     weak var delegate: GameViewControllerProtocol?
+    private var aSphereIsMoving = false
     
     var contentView: GameView { return view as! GameView }
     
@@ -60,32 +61,77 @@ class GameViewController: UIViewController {
             self.contentView.remainingRedSpheresLabel.text = "\(remainingRedSpheres)"
         }
         
+        if case .move = board.mode {
+            contentView.whiteButtonStackView.isHidden = true
+            contentView.redButtonStackView.isHidden = true
+        }
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        let lastMoves = board.lastMoves
-        guard let firstMove = lastMoves.first else {
+        if board.lastMoves.count < 1 {
             add(.white)
             return
         }
+//
+//        if firstMove.from.column < 0 {
+//            let sphereNode = contentView.add(color: firstMove.color)
+//
+//            let column = firstMove.to.column
+//            let row = firstMove.to.row
+//            moveSphere(sphereNode, toColumn: column, andRow: row, completionHandler: lastMoves.count < 2 ? nil : {
+//                if lastMoves.count > 1 {
+//                    let secondMove = lastMoves[1]
+//                    if secondMove.to.column < 0 {
+//                        DispatchQueue.main.async {
+//                            self.removeSphere(fromColumn: secondMove.from.column, row: secondMove.from.row)
+//                        }
+//                    }
+//                }
+//            })
+//        }
         
-        if firstMove.from.column < 0 {
-            let sphereNode = contentView.add(color: firstMove.color)
+        var completion: (() -> Void)? = nil
+        for move in board.lastMoves.reversed() {
             
-            let column = firstMove.to.column
-            let row = firstMove.to.row
-            moveSphere(sphereNode, toColumn: column, andRow: row, completionHandler: lastMoves.count < 2 ? nil : {
-                if lastMoves.count > 1 {
-                    let secondMove = lastMoves[1]
-                    if secondMove.to.column < 0 {
-                        DispatchQueue.main.async {
-                            self.removeSphere(fromColumn: secondMove.from.column, row: secondMove.from.row)
-                        }
+            let previousCompletion = completion
+            if move.from.column < 0 {
+                let sphereNode = contentView.add(color: move.color)
+                
+                let column = move.to.column
+                let row = move.to.row
+                completion = {
+                    DispatchQueue.main.async {
+                        self.moveSphere(sphereNode, toColumn: column, andRow: row, completionHandler:previousCompletion)
+                        self.board.resetLastMoves()
                     }
                 }
-            })
+            } else if move.to.column < 0 {
+                completion = {
+                    DispatchQueue.main.async {
+                        self.removeSphere(fromColumn: move.from.column, row: move.from.row)
+                        self.board.resetLastMoves()
+                    }
+                }
+            } else {
+                completion = {
+                    DispatchQueue.main.async {
+                        self.moveSphere(fromColumn: move.from.column, fromRow: move.from.row, toColumn: move.to.column, toRow: move.to.row, completionHandler:previousCompletion)
+                        self.board.resetLastMoves()
+                    }
+                }
+            }
+        }
+        completion?()
+        
+        if board.surrendered {
+            let alert = UIAlertController(title: "You won!", message: "The other player surrendered!", preferredStyle: .alert)
+            
+            let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+            alert.addAction(okAction)
+            
+            present(alert, animated: true, completion: nil)
         }
     }
     
@@ -133,6 +179,11 @@ extension GameViewController: ButtonActions {
 
 extension GameViewController {
     @objc func tap(sender: UITapGestureRecognizer) {
+        
+        guard !aSphereIsMoving else {
+            return
+        }
+        
         let location = sender.location(in: contentView)
         
         let hitResult = contentView.hitTest(location, options: nil)
@@ -146,6 +197,8 @@ extension GameViewController {
                 switch board.mode {
                 case .removeSphere:
                     removeSphereFrom(node: node, column: column, row: row)
+                case .move:
+                    moveSphereUpOn(node: node, column: column, row: row)
                 default:
                     addSphereTo(node: node, column: column, row: row)
                 }
@@ -175,7 +228,7 @@ extension GameViewController {
         if position.y < 20 {
             let (columnToRemove, rowToRemove) = contentView.columnAndRow(for: sphereNode)
             try? board.removeSphereFrom(column: columnToRemove, andRow: rowToRemove)
-            _ = contentView.removeSphereFrom(column: columnToRemove, row: rowToRemove)
+            _ = contentView.topSphereAt(column: columnToRemove, row: rowToRemove)
             
             var spherePosition = sphereNode.position
             spherePosition.y = 25
@@ -214,7 +267,42 @@ extension GameViewController {
 //            }
         }
         move.timingMode = .easeOut
-        sphereNode.runAction(move)
+        aSphereIsMoving = true
+        sphereNode.runAction(move) {
+            self.aSphereIsMoving = false
+        }
+    }
+    
+    func moveSphereUpOn(node: SCNNode, column: Int, row: Int) {
+        
+        guard let sphereNode = contentView.topSphereAt(column: column, row: row) else {
+            fatalError("no sphere to move up")
+        }
+        
+        if case .move(color: let color) = board.mode, sphereNode.color != color {
+            let alert = UIAlertController(title: "Wat?", message: "Use your own stones!", preferredStyle: .alert)
+            
+            let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+            alert.addAction(okAction)
+            
+            present(alert, animated: true, completion: nil)
+            return
+        }
+        
+        sphereNode.isMoving = true
+        
+        try? board.removeSphereFrom(column: column, andRow: row)
+        _ = contentView.topSphereAt(column: column, row: row)
+        
+        var spherePosition = sphereNode.position
+        spherePosition.y = 25
+        let moveUp = SCNAction.move(to: spherePosition, duration: 0.3)
+        
+        aSphereIsMoving = true
+        sphereNode.runAction(moveUp) {
+            self.board.mode = .addSpheres
+            self.aSphereIsMoving = false
+        }
     }
     
     func moveSphere(_ sphereNode: GameSphereNode, toColumn column: Int, andRow row: Int, completionHandler: (() -> Void)?) {
@@ -234,19 +322,26 @@ extension GameViewController {
         try? board.addSphereWith(sphereNode.color, toColumn: column, andRow: row, updateRemainCount: false)
         contentView.add(sphereNode, toColumn: column, andRow: row)
         
+        aSphereIsMoving = true
         move.timingMode = .easeOut
         sphereNode.runAction(move) {
             
             if completionHandler == nil {
-                switch sphereNode.color {
-                case .red:
+                
+                switch (self.board.mode, sphereNode.color) {
+                case (.move(color: _), _):
+                    print("do nothing")
+                case (_, .red):
                     self.add(.white)
-                case .white:
+                case (_, .white):
                     self.add(.red)
                 }
+                
+                self.presentMoveAlertIfNeeded()
             }
             
             completionHandler?()
+            self.aSphereIsMoving = false
         }
         
         sphereNode.isMoving = false
@@ -264,19 +359,69 @@ extension GameViewController {
         remove.timingMode = .easeOut
         let cleanUp = SCNAction.run { _ in
             try? self.board.removeSphereFrom(column: column, andRow: row)
-            self.board.mode = .addSpheres
+//            self.board.mode = .addSpheres
         }
         let moveAndRemove = SCNAction.sequence([moveUp, wait, fade, remove, cleanUp])
         
-        let sphereNode = contentView.removeSphereFrom(column: column, row: row)
-        sphereNode.runAction(moveAndRemove) {
-            switch sphereNode.color {
-            case .red:
-                self.add(.white)
-            case .white:
-                self.add(.red)
+        let sphereNode = contentView.topSphereAt(column: column, row: row)
+        aSphereIsMoving = true
+        sphereNode?.runAction(moveAndRemove) {
+            
+            if let sphereColor = sphereNode?.color {
+                switch (self.board.mode, sphereColor) {
+                case (.move(color: _), _):
+                    print("do nothing")
+                case (_, .red):
+                    self.add(.red)
+                case (_, .white):
+                    self.add(.white)
+                }
             }
+            self.presentMoveAlertIfNeeded()
+            self.aSphereIsMoving = false
         }
+    }
+    
+    func moveSphere(fromColumn: Int, fromRow: Int, toColumn: Int, toRow: Int, completionHandler: (() -> Void)?) {
+        
+        guard let sphereNode = contentView.topSphereAt(column: fromColumn, row: fromRow) else {
+            fatalError("no sphere to move up")
+        }
+        
+        sphereNode.isMoving = true
+        
+        try? board.removeSphereFrom(column: fromColumn, andRow: fromRow)
+        _ = contentView.topSphereAt(column: fromColumn, row: fromRow)
+        
+        var spherePosition = sphereNode.position
+        spherePosition.y = 25
+        let wait = SCNAction.wait(duration: 3)
+        let moveUp = SCNAction.move(to: spherePosition, duration: 0.5)
+
+        let poleNode = contentView.poleNode(column: toColumn, row: toRow)
+        
+        var position = sphereNode.position
+        position.x = poleNode.position.x
+        position.z = poleNode.position.z
+        position.y = spherePosition.y
+        
+        let moveToPole = SCNAction.move(to: position, duration: 0.5)
+        position.y = 2.0 + 3.5 * Float(board.spheresAt(column: toColumn, row: toRow))
+        let moveDown = SCNAction.move(to: position, duration: 0.5)
+        let move = SCNAction.sequence([wait, moveUp, moveToPole, moveDown])
+        
+        try? board.addSphereWith(sphereNode.color, toColumn: toColumn, andRow: toRow, updateRemainCount: false)
+        contentView.add(sphereNode, toColumn: toColumn, andRow: toRow)
+
+        move.timingMode = .easeOut
+        aSphereIsMoving = true
+        sphereNode.runAction(move) {
+            completionHandler?()
+            
+            self.aSphereIsMoving = false
+        }
+        
+        sphereNode.isMoving = false
     }
     
     @objc func updateButton() {
@@ -303,9 +448,17 @@ extension GameViewController {
         
         sphereNode.isMoving = false
         
-        if board.mode != .removeSphere {
+        switch board.mode {
+        case .removeSphere:
+            print("do nothing")
+        default:
             delegate?.gameViewController(self, didFinishMoveWith: board)
         }
+    }
+    
+    func surrender(sender: UIButton!) {
+        board.mode = .surrender
+        delegate?.gameViewController(self, didFinishMoveWith: board)
     }
     
     private func removeSphereFrom(node: SCNNode, column: Int, row: Int) {
@@ -328,8 +481,11 @@ extension GameViewController {
         }
         let moveAndRemove = SCNAction.sequence([moveUp, wait, fade, remove, cleanUp])
 
-        let sphereNode = contentView.removeSphereFrom(column: column, row: row)
-        sphereNode.runAction(moveAndRemove)
+        let sphereNode = contentView.topSphereAt(column: column, row: row)
+        aSphereIsMoving = true
+        sphereNode?.runAction(moveAndRemove) {
+            self.aSphereIsMoving = false
+        }
         
 //        switch sphereNode.color {
 //        case .red:
@@ -354,11 +510,12 @@ extension GameViewController {
                 sphereColorToRemove = .red
             }
             
+            self.board.mode = .removeSphere
+            
             let alertController = UIAlertController(title: "Mill", message: "Mill: \(result)\nYou can now remove a \(colorToRemove) sphere from the board.", preferredStyle: .alert)
             
             let okAction = UIAlertAction(title: "OK", style: .default, handler: { action in
                 
-                self.board.mode = .removeSphere
     
                 let columnAndRows = self.board.columnsRowsWithRemovableSpheresFor(sphereColor: sphereColorToRemove)
                 print("columnAndRows: \(columnAndRows)")
@@ -369,12 +526,24 @@ extension GameViewController {
             alertController.addAction(okAction)
             present(alertController, animated: true, completion: nil)
             
-            
             return true
         }
         return false
     }
+    
+    func presentMoveAlertIfNeeded() {
+        if case .move = board.mode {
+            let alertController = UIAlertController(title: "Move", message: "All spheres are played. So now you can move your spheres to create mills.", preferredStyle: .alert)
+            
+            let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+            alertController.addAction(okAction)
+            
+            present(alertController, animated: true, completion: nil)
+            
+        }
+    }
 }
+
 
 protocol GameViewControllerProtocol: class {
     func gameViewController(_ controller: GameViewController, didFinishMoveWith: Board)

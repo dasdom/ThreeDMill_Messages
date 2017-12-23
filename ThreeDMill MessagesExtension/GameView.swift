@@ -16,6 +16,7 @@ class GameView: SCNView, GameViewProtocol {
     let cameraOrbit = SCNNode()
     let spotLightNode = SCNNode()
     var poleNodes: [[SCNNode]] = []
+//    let textNode: SCNNode
     var startAngleY: Float = 0.0
     let remainingWhiteSpheresLabel: UILabel
     let whiteButtonStackView: UIStackView
@@ -23,6 +24,7 @@ class GameView: SCNView, GameViewProtocol {
     let remainingRedSpheresLabel: UILabel
     let redButtonStackView: UIStackView
     var gameSphereNodes: [[[GameSphereNode]]] = []
+    let surrenderButton: UIButton
 
     override init(frame: CGRect, options: [String : Any]? = nil) {
         
@@ -32,6 +34,7 @@ class GameView: SCNView, GameViewProtocol {
         groundGeometry.reflectivity = 0
         groundGeometry.materials = [groundMaterial]
         let groundNode = SCNNode(geometry: groundGeometry)
+        groundNode.physicsBody = SCNPhysicsBody(type: .static, shape: nil)
         
         let constraint = SCNLookAtConstraint(target: groundNode)
         constraint.isGimbalLockEnabled = true
@@ -79,21 +82,10 @@ class GameView: SCNView, GameViewProtocol {
             poleNodes.append(columnNodes)
         }
         
-        func addButton() -> UIButton {
-            let button = UIButton(type: .system)
-            button.setTitle("＋", for: .normal)
-            button.setTitleColor(UIColor.white, for: .normal)
-            let buttonFont = UIFont.systemFont(ofSize: 26)
-            button.titleLabel?.font = buttonFont
-            button.layer.borderWidth = 1
-            button.layer.borderColor = UIColor.white.cgColor
-            button.layer.cornerRadius = 10
-            button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
-            return button
-        }
-//
-//        let addWhiteButton = addButton()
-//        addWhiteButton.tag = 1
+//        let text = SCNText(string: "Mill", extrusionDepth: 1)
+//        text.font = UIFont.boldSystemFont(ofSize: 10)
+//        textNode = SCNNode(geometry: text)
+//        textNode.position = SCNVector3(x: -10, y: 15, z: 15)
         
         let sphereIndicatorHeight = CGFloat(20)
         
@@ -112,9 +104,6 @@ class GameView: SCNView, GameViewProtocol {
         whiteButtonStackView.alignment = .center
         whiteButtonStackView.spacing = 5
         
-//        let addRedButton = addButton()
-//        addRedButton.tag = 0
-        
         let redView = UIView()
         redView.backgroundColor = UIColor.red
         redView.layer.cornerRadius = sphereIndicatorHeight/2.0
@@ -130,11 +119,31 @@ class GameView: SCNView, GameViewProtocol {
         redButtonStackView.alignment = .center
         redButtonStackView.spacing = 5
         
-        doneButton = addButton()
+        func button() -> UIButton {
+            let button = UIButton(type: .system)
+            button.setTitle("＋", for: .normal)
+            button.setTitleColor(UIColor.white, for: .normal)
+            let buttonFont = UIFont.systemFont(ofSize: 26)
+            button.titleLabel?.font = buttonFont
+            button.layer.borderWidth = 1
+            button.layer.borderColor = UIColor.white.cgColor
+            button.layer.cornerRadius = 5
+            button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
+            return button
+        }
+
+        doneButton = button()
         doneButton.translatesAutoresizingMaskIntoConstraints = false
         doneButton.setTitle("3", for: .normal)
         doneButton.titleLabel?.font = UIFont.systemFont(ofSize: 30)
         doneButton.isHidden = true
+        
+        surrenderButton = button()
+        surrenderButton.translatesAutoresizingMaskIntoConstraints = false
+        surrenderButton.setTitle("surrender", for: .normal)
+        surrenderButton.titleLabel?.font = UIFont.systemFont(ofSize: 15)
+        surrenderButton.contentEdgeInsets = UIEdgeInsets(top: 3, left: 5, bottom: 3, right: 5)
+        surrenderButton.addTarget(nil, action: .surrender, for: .touchUpInside)
         
         super.init(frame: frame, options: options)
         
@@ -149,6 +158,7 @@ class GameView: SCNView, GameViewProtocol {
         scene?.rootNode.addChildNode(groundNode)
         scene?.rootNode.addChildNode(cameraOrbit)
         scene?.rootNode.addChildNode(spotLightNode)
+//        scene?.rootNode.addChildNode(textNode)
 
         for j in 0..<Board.numberOfColumns {
             for i in 0..<Board.numberOfColumns {
@@ -159,6 +169,7 @@ class GameView: SCNView, GameViewProtocol {
         addSubview(redButtonStackView)
         addSubview(whiteButtonStackView)
         addSubview(doneButton)
+        addSubview(surrenderButton)
         
         redButtonStackView.translatesAutoresizingMaskIntoConstraints = false
         whiteButtonStackView.translatesAutoresizingMaskIntoConstraints = false
@@ -173,6 +184,8 @@ class GameView: SCNView, GameViewProtocol {
             whiteView.widthAnchor.constraint(equalTo: whiteView.heightAnchor),
             redView.heightAnchor.constraint(equalToConstant: sphereIndicatorHeight),
             redView.widthAnchor.constraint(equalTo: redView.heightAnchor),
+            surrenderButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            surrenderButton.topAnchor.constraint(equalTo: topAnchor, constant: 10)
             ])
         
         let panRecognizer = UIPanGestureRecognizer(target: self, action: #selector(pan))
@@ -262,10 +275,11 @@ class GameView: SCNView, GameViewProtocol {
 //        print(gameSphereNodes)
     }
     
-    func removeSphereFrom(column: Int, row: Int) -> GameSphereNode {
+    func topSphereAt(column: Int, row: Int) -> GameSphereNode? {
+        if gameSphereNodes[column][row].count < 1 {
+            return nil
+        }
         let sphereToRemove = gameSphereNodes[column][row].removeLast()
-//        print("gameSphereNodes, \(column), \(row): \(gameSphereNodes[column][row])")
-//        sphereToRemove.removeFromParentNode()
         return sphereToRemove
     }
     
@@ -309,10 +323,12 @@ class GameView: SCNView, GameViewProtocol {
 @objc protocol ButtonActions {
 //    @objc func add(sender: UIButton!)
     @objc func done(sender: UIButton!)
+    @objc func surrender(sender: UIButton!)
 }
 
 extension Selector {
 //    static let add = #selector(ButtonActions.add(sender:))
     static let done = #selector(ButtonActions.done(sender:))
+    static let surrender = #selector(ButtonActions.surrender(sender:))
 }
 
