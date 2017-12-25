@@ -18,6 +18,7 @@ class GameView: SCNView, GameViewProtocol {
     var poleNodes: [[SCNNode]] = []
 //    let textNode: SCNNode
     var startAngleY: Float = 0.0
+    var startPositionY: Float = 0.0
     let remainingWhiteSpheresLabel: UILabel
     let whiteButtonStackView: UIStackView
     let doneButton: UIButton
@@ -38,11 +39,16 @@ class GameView: SCNView, GameViewProtocol {
         
         let constraint = SCNLookAtConstraint(target: groundNode)
         constraint.isGimbalLockEnabled = true
+        constraint.influenceFactor = 0.9
 
         let camera = SCNCamera()
         camera.zFar = 10_000
         cameraNode.camera = camera
-        cameraNode.position = SCNVector3(0, 35, 40)
+        if #available(iOSApplicationExtension 11.0, *) {
+            cameraNode.position = SCNVector3(0, 35, 40)
+        } else {
+            cameraNode.position = SCNVector3(0, 45, 40)
+        }
         cameraNode.constraints = [constraint]
         
         cameraOrbit.addChildNode(cameraNode)
@@ -173,12 +179,24 @@ class GameView: SCNView, GameViewProtocol {
         
         redButtonStackView.translatesAutoresizingMaskIntoConstraints = false
         whiteButtonStackView.translatesAutoresizingMaskIntoConstraints = false
+        if #available(iOSApplicationExtension 11.0, *) {
+            NSLayoutConstraint.activate([
+                redButtonStackView.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 10),
+                redButtonStackView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -10),
+                whiteButtonStackView.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -10),
+                whiteButtonStackView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -10),
+                doneButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -10),
+                ])
+        } else {
+            NSLayoutConstraint.activate([
+                redButtonStackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+                redButtonStackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -50),
+                whiteButtonStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+                whiteButtonStackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -50),
+                doneButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -50),
+                ])
+        }
         NSLayoutConstraint.activate([
-            redButtonStackView.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 10),
-            redButtonStackView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -10),
-            whiteButtonStackView.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -10),
-            whiteButtonStackView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -10),
-            doneButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -10),
             doneButton.centerXAnchor.constraint(equalTo: centerXAnchor),
             whiteView.heightAnchor.constraint(equalToConstant: sphereIndicatorHeight),
             whiteView.widthAnchor.constraint(equalTo: whiteView.heightAnchor),
@@ -239,11 +257,23 @@ class GameView: SCNView, GameViewProtocol {
         switch sender.state {
         case .began:
             startAngleY = cameraOrbit.eulerAngles.y
+            startPositionY = cameraOrbit.position.y
         default:
             break
         }
         
-        cameraOrbit.eulerAngles.y = startAngleY - GLKMathDegreesToRadians(Float(translation.x))
+//        print("translation: \(translation)")
+        if abs(translation.x) < abs(translation.y) {
+            let positionY = startPositionY + Float(translation.y)/6.0
+            if positionY > -10, positionY < 20 {
+                cameraOrbit.position.y = positionY
+//                print("positionY: \(positionY)")
+//            } else {
+//                print("-10 < \(positionY)")
+            }
+        } else {
+            cameraOrbit.eulerAngles.y = startAngleY - GLKMathDegreesToRadians(Float(translation.x))
+        }
     }
 
     @discardableResult func add(color sphereColor: SphereColor) -> GameSphereNode {
@@ -316,6 +346,34 @@ class GameView: SCNView, GameViewProtocol {
             let poleNode = poleNodes[columnRow.0][columnRow.1]
             
             poleNode.geometry?.materials = [poleMaterial]
+        }
+    }
+    
+    func fadeAllBut(result: String) {
+//        let poleMaterial = SCNMaterial()
+//        poleMaterial.diffuse.contents = UIColor.green.withAlphaComponent(0.4)
+        
+        let components = result.components(separatedBy: ".")
+        
+        for column in 0..<Board.numberOfColumns {
+            for row in 0..<Board.numberOfColumns {
+                let poleNode = poleNodes[column][row]
+//                poleNode.castsShadow = false
+//                poleNode.geometry?.materials = [poleMaterial]
+//                poleNode.opacity = 0.3
+                
+                let fade = SCNAction.fadeOpacity(to: 0.3, duration: 1)
+                poleNode.runAction(fade)
+                
+                for (index, sphereNode) in gameSphereNodes[column][row].enumerated() {
+                    let sphereId = "\(column)\(row)\(index)"
+                    if components.contains(sphereId) {
+                        continue
+                    }
+                    let fade = SCNAction.fadeOpacity(to: 0.3, duration: 1)
+                    sphereNode.runAction(fade)
+                }
+            }
         }
     }
 }

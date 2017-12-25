@@ -25,6 +25,7 @@ final class Board {
     private var remainingRedSpheres = 32
     private(set) var lastMoves: [Move] = []
     private var columnsRowsWithRemovableSpheres: [String] = []
+    private(set) var lastMill = ""
     var surrendered = false
     
     private var seenMills: [String] = []
@@ -71,6 +72,8 @@ final class Board {
         queryItems.append(URLQueryItem(name: "remainingWhite", value: "\(remainingWhiteSpheres)"))
         queryItems.append(URLQueryItem(name: "remainingRed", value: "\(remainingRedSpheres)"))
 
+        queryItems.append(URLQueryItem(name: "lastMill", value: "\(lastMill)"))
+        
         var components = URLComponents()
         components.queryItems = queryItems
         guard let url = components.url else { fatalError() }
@@ -155,6 +158,8 @@ final class Board {
                     remainingRedSpheres = remainingRedInt
                 } else if name == "surrendered" {
                     surrendered = true
+                } else if name == "lastMill" {
+                    lastMill = value
                 }
             }
         }
@@ -320,6 +325,7 @@ extension Board {
                 } else if result == nil {
                     tempSeenMills.append(resultString)
                     result = tempResult
+                    lastMill = resultString
                 } else {
                     assert(false, "Unexpected! Fix!")
                 }
@@ -674,9 +680,9 @@ extension Board {
 
 extension Board {
     convenience init?(message: MSMessage?) {
-        guard let messageURL = message?.url else { return nil }
-//        guard let messageURL = message?.url ??
-//            URL(string: "?0,0=white,red&0,1=white,red&0,2=white&1,0=white,red&1,1=white,red&1,2=white,red&1,3=white,red&-1,-1,-1,0,2,1=white&remainingRed=0&remainingWhite=0&seenMills=100.110.120.130,101.111.121.131") else { return nil }
+//        guard let messageURL = message?.url else { return nil }
+        guard let messageURL = message?.url ??
+            URL(string: "?0,0=white,red&0,1=white,red&0,2=white&1,0=white,red&1,1=white,red&1,2=white,red&1,3=white,red&-1,-1,-1,0,2,1=red&remainingRed=1&remainingWhite=1&seenMills=100.110.120.130,101.111.121.131") else { return nil }
 
         self.init(url: messageURL)
     }
