@@ -26,6 +26,7 @@ class GameView: SCNView, GameViewProtocol {
     let redButtonStackView: UIStackView
     var gameSphereNodes: [[[GameSphereNode]]] = []
     let surrenderButton: UIButton
+    static let startY: Float = 25.0
 
     override init(frame: CGRect, options: [String : Any]? = nil) {
         
@@ -278,24 +279,21 @@ class GameView: SCNView, GameViewProtocol {
 
     @discardableResult func add(color sphereColor: SphereColor) -> GameSphereNode {
         
-//        if sphereColor == .red {
-//            redButtonStackView.isHidden = true
-//            whiteButtonStackView.isHidden = true
-//        } else {
-//            redButtonStackView.isHidden = false
-//            whiteButtonStackView.isHidden = true
-//        }
-        
         let material = SCNMaterial()
         material.diffuse.contents = sphereColor.uiColor()
         let geometry = SCNSphere(radius: 2.6)
         geometry.materials = [material]
         
         let sphere = GameSphereNode(geometry: geometry, color: sphereColor)
-        sphere.position = SCNVector3(x: 0, y: 25, z: 0)
+        sphere.position = SCNVector3(x: 0, y: GameView.startY+20, z: 0)
         
 //        gameSphereNodes.append(sphere)
         scene?.rootNode.addChildNode(sphere)
+        
+        DispatchQueue.main.async {
+            let moveToStart = SCNAction.move(to: SCNVector3(x: 0, y: GameView.startY, z: 0), duration: 0.5)
+            sphere.runAction(moveToStart)
+        }
         
         return sphere
     }
@@ -306,6 +304,10 @@ class GameView: SCNView, GameViewProtocol {
     }
     
     func topSphereAt(column: Int, row: Int) -> GameSphereNode? {
+        return gameSphereNodes[column][row].last
+    }
+    
+    func removeTopSphereAt(column: Int, row: Int) -> GameSphereNode? {
         if gameSphereNodes[column][row].count < 1 {
             return nil
         }

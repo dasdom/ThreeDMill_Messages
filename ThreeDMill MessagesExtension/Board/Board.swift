@@ -53,7 +53,8 @@ final class Board {
                 for move in lastMoves {
                     if move.to.column == column, move.to.row == row {
                         poleArray.removeLast()
-                    } else if move.from.column == column, move.from.row == row {
+                    }
+                    if move.from.column == column, move.from.row == row {
                         poleArray.append(move.color.rawValue)
                     }
                 }
@@ -230,14 +231,22 @@ extension Board {
         NotificationCenter.default.post(name: .numberOfRemainingSpheresChanged, object: nil, userInfo: [SphereColor.white: remainingWhiteSpheres, SphereColor.red: remainingRedSpheres])
     }
     
-    func removeSphereFrom(column: Int, andRow row: Int) throws {
+    func removeSphereFrom(column: Int, andRow row: Int, updateCounts: Bool = true) throws {
         guard canRemoveSphereFrom(column: column, row: row) else {
             throw BoardLogicError.poleEmpty
         }
-
-        switch mode {
-        case .addSpheres:
-            print("do nothing")
+        
+        guard let sphereColor = poles[column][row].sphereColors.last else { fatalError("no sphere color") }
+        
+        switch (mode, sphereColor) {
+        case (.addSpheres, .red):
+            if updateCounts {
+                remainingRedSpheres += 1
+            }
+        case (.addSpheres, .white):
+            if updateCounts {
+                remainingWhiteSpheres += 1
+            }
         default:            
             let fromFloor = poles[column][row].sphereColors.count - 1
             let from = Position(column: column, row: row, floor: fromFloor)
@@ -246,7 +255,6 @@ extension Board {
             let move = Move(from: from, to: to, color: sphereColor)
             lastMoves.append(move)
         }
-        
         
         poles[column][row].remove()
         
@@ -680,9 +688,9 @@ extension Board {
 
 extension Board {
     convenience init?(message: MSMessage?) {
-//        guard let messageURL = message?.url else { return nil }
-        guard let messageURL = message?.url ??
-            URL(string: "?0,0=white,red&0,1=white,red&0,2=white&1,0=white,red&1,1=white,red&1,2=white,red&1,3=white,red&-1,-1,-1,0,2,1=red&remainingRed=1&remainingWhite=1&seenMills=100.110.120.130,101.111.121.131") else { return nil }
+        guard let messageURL = message?.url else { return nil }
+//        guard let messageURL = message?.url ??
+//            URL(string: "?3,1=white&0,0=white,red&0,1=white,red&0,2=white&1,0=white,red&1,1=white,red&1,2=white,red&1,3=white,red&-1,-1,-1,0,2,1=red&remainingRed=1&remainingWhite=1&seenMills=100.110.120.130,101.111.121.131") else { return nil }
 
         self.init(url: messageURL)
     }

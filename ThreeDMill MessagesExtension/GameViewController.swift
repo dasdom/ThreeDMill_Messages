@@ -6,7 +6,7 @@ import UIKit
 //import QuartzCore
 import SceneKit
 
-class GameViewController: UIViewController {
+final class GameViewController: UIViewController {
     
     lazy var board = Board()
     private var notification: NSObjectProtocol?
@@ -148,12 +148,6 @@ class GameViewController: UIViewController {
 }
 
 extension GameViewController: ButtonActions {
-//    func add(sender: UIButton!) {
-////        done(sender: nil)
-//
-//        let sphereColor: SphereColor = sender.tag == 0 ? .red : .white
-//        contentView.add(color: sphereColor)
-//    }
     
     func add(_ color: SphereColor) {
         contentView.add(color: color)
@@ -189,6 +183,44 @@ extension GameViewController {
         }
     }
     
+    private func actionToMove(to poleNode: SCNNode, duration: TimeInterval = 0.3) -> SCNAction {
+        var position = poleNode.position
+        position.y = GameView.startY
+        return SCNAction.move(to: position, duration: duration)
+    }
+    
+    private func actionToMoveUp(sphere: GameSphereNode, duration: TimeInterval = 0.3) -> SCNAction {
+        var spherePosition = sphere.position
+        spherePosition.y = GameView.startY
+        return SCNAction.move(to: spherePosition, duration: duration)
+    }
+    
+    private func actionToMoveDown(to poleNode: SCNNode, column: Int, row: Int, duration: TimeInterval = 0.3) -> SCNAction {
+        
+        var position = poleNode.position
+        position.y = 2.0 + 3.5 * Float(board.spheresAt(column: column, row: row))
+        return SCNAction.move(to: position, duration: duration)
+    }
+    
+    private func movingSphereNode() -> GameSphereNode? {
+        let sphereNodes = contentView.scene?.rootNode.childNodes(passingTest: { node, stop -> Bool in
+            guard let gameSphereNode = node as? GameSphereNode else { return false }
+            return gameSphereNode.isMoving
+        })
+        
+        return sphereNodes?.first as? GameSphereNode
+    }
+    
+    private func removeSphere(column: Int, row: Int) {
+        try? board.removeSphereFrom(column: column, andRow: row)
+        _ = contentView.removeTopSphereAt(column: column, row: row)
+    }
+    
+    private func add(sphere: GameSphereNode, column: Int, row: Int, updateCounts: Bool = true) {
+        try? board.addSphereWith(sphere.color, toColumn: column, andRow: row, updateRemainCount: updateCounts)
+        contentView.add(sphere, toColumn: column, andRow: row)
+    }
+    
     private func addSphereTo(node: SCNNode, column: Int, row: Int) {
         guard board.canAddSphereTo(column: column, row: row) else {
             let alertController = UIAlertController(title: "Pole full", message: "A pole cannot hold more than four spheres.", preferredStyle: .alert)
@@ -197,57 +229,32 @@ extension GameViewController {
             return
         }
         
-        let sphereNodes = contentView.scene?.rootNode.childNodes(passingTest: { node, stop -> Bool in
-            guard let gameSphereNode = node as? GameSphereNode else { return false }
-            return gameSphereNode.isMoving
-        })
+        guard let sphereNode = movingSphereNode() else { fatalError("No moving sphere node") }
         
-        guard let sphereNode = sphereNodes?.first as? GameSphereNode else { return }
-        
-        var position = sphereNode.position
-        position.x = node.position.x
-        position.z = node.position.z
         let move: SCNAction
-        if position.y < 20 {
+        
+        let moveToPole = actionToMove(to: node)
+        let moveDown = actionToMoveDown(to: node, column: column, row: row)
+
+        if sphereNode.position.y < 20 {
             let (columnToRemove, rowToRemove) = contentView.columnAndRow(for: sphereNode)
-            try? board.removeSphereFrom(column: columnToRemove, andRow: rowToRemove)
-            _ = contentView.topSphereAt(column: columnToRemove, row: rowToRemove)
+            removeSphere(column: columnToRemove, row: rowToRemove)
             
-            var spherePosition = sphereNode.position
-            spherePosition.y = 25
-            let moveUp = SCNAction.move(to: spherePosition, duration: 0.3)
-            position.y = 25
-            let moveToPole = SCNAction.move(to: position, duration: 0.3)
-            position.y = 2.0 + 3.5 * Float(board.spheresAt(column: column, row: row))
-            let moveDown = SCNAction.move(to: position, duration: 0.3)
+            let moveUp = actionToMoveUp(sphere: sphereNode)
             move = SCNAction.sequence([moveUp, moveToPole, moveDown])
             
-            try? board.addSphereWith(sphereNode.color, toColumn: column, andRow: row)
-            contentView.add(sphereNode, toColumn: column, andRow: row)
+            add(sphere: sphereNode, column: column, row: row)
         } else {
             timer?.invalidate()
             timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(updateButton), userInfo: nil, repeats: true)
             timerStartDate = Date()
-            
-            let moveToPole = SCNAction.move(to: position, duration: 0.3)
-            position.y = 2.0 + 3.5 * Float(board.spheresAt(column: column, row: row))
-            let moveDown = SCNAction.move(to: position, duration: 0.3)
+        
             move = SCNAction.sequence([moveToPole, moveDown])
             
-            try? board.addSphereWith(sphereNode.color, toColumn: column, andRow: row)
-            contentView.add(sphereNode, toColumn: column, andRow: row)
+            add(sphere: sphereNode, column: column, row: row)
             
             _ = mill(on: board, sphereNode: sphereNode)
-//            if !mill(on: board, sphereNode: sphereNode) && activateAddButton {
-//                
-//                switch sphereNode.color {
-//                case .red:
-//                    contentView.whiteButtonStackView.isHidden = false
-//                case .white:
-//                    contentView.redButtonStackView.isHidden = false
-//                }
-//                
-//            }
+
         }
         move.timingMode = .easeOut
         aSphereIsMoving = true
@@ -274,12 +281,9 @@ extension GameViewController {
         
         sphereNode.isMoving = true
         
-        try? board.removeSphereFrom(column: column, andRow: row)
-        _ = contentView.topSphereAt(column: column, row: row)
+        removeSphere(column: column, row: row)
         
-        var spherePosition = sphereNode.position
-        spherePosition.y = 25
-        let moveUp = SCNAction.move(to: spherePosition, duration: 0.3)
+        let moveUp = actionToMoveUp(sphere: sphereNode)
         
         aSphereIsMoving = true
         sphereNode.runAction(moveUp) {
@@ -297,13 +301,18 @@ extension GameViewController {
         position.z = poleNode.position.z
         
         let wait = SCNAction.wait(duration: 2)
-        let moveToPole = SCNAction.move(to: position, duration: 0.5)
-        position.y = 2.0 + 3.5 * Float(board.spheresAt(column: column, row: row))
-        let moveDown = SCNAction.move(to: position, duration: 0.5)
+//        let moveToPole = SCNAction.move(to: position, duration: 0.5)
+        let moveToPole = actionToMove(to: poleNode, duration: 0.5)
+        
+//        position.y = 2.0 + 3.5 * Float(board.spheresAt(column: column, row: row))
+//        let moveDown = SCNAction.move(to: position, duration: 0.5)
+        let moveDown = actionToMoveDown(to: poleNode, column: column, row: row, duration: 0.5)
+        
         let move = SCNAction.sequence([wait, moveToPole, moveDown])
         
-        try? board.addSphereWith(sphereNode.color, toColumn: column, andRow: row, updateRemainCount: false)
-        contentView.add(sphereNode, toColumn: column, andRow: row)
+//        try? board.addSphereWith(sphereNode.color, toColumn: column, andRow: row, updateRemainCount: false)
+//        contentView.add(sphereNode, toColumn: column, andRow: row)
+        add(sphere: sphereNode, column: column, row: row, updateCounts: false)
         
         aSphereIsMoving = true
         move.timingMode = .easeOut
@@ -348,12 +357,12 @@ extension GameViewController {
             let remove = SCNAction.removeFromParentNode()
             remove.timingMode = .easeOut
             let cleanUp = SCNAction.run { _ in
-                try? self.board.removeSphereFrom(column: column, andRow: row)
+                try? self.board.removeSphereFrom(column: column, andRow: row, updateCounts: false)
                 //            self.board.mode = .addSpheres
             }
             let moveAndRemove = SCNAction.sequence([wait1, moveUp, wait2, fade, remove, cleanUp])
             
-            let sphereNode = self.contentView.topSphereAt(column: column, row: row)
+            let sphereNode = self.contentView.removeTopSphereAt(column: column, row: row)
             self.aSphereIsMoving = true
             sphereNode?.runAction(moveAndRemove) {
                 
@@ -381,29 +390,32 @@ extension GameViewController {
         
         sphereNode.isMoving = true
         
-        try? board.removeSphereFrom(column: fromColumn, andRow: fromRow)
-        _ = contentView.topSphereAt(column: fromColumn, row: fromRow)
+        removeSphere(column: fromColumn, row: fromRow)
         
-        var spherePosition = sphereNode.position
-        spherePosition.y = 25
-        let wait = SCNAction.wait(duration: 3)
-        let moveUp = SCNAction.move(to: spherePosition, duration: 0.5)
+//        var spherePosition = sphereNode.position
+//        spherePosition.y = GameView.startY
+        let wait = SCNAction.wait(duration: 2)
+//        let moveUp = SCNAction.move(to: spherePosition, duration: 0.5)
+        let moveUp = actionToMoveUp(sphere: sphereNode, duration: 0.5)
 
         let poleNode = contentView.poleNode(column: toColumn, row: toRow)
         
         var position = sphereNode.position
         position.x = poleNode.position.x
         position.z = poleNode.position.z
-        position.y = spherePosition.y
+//        position.y = spherePosition.y
         
-        let moveToPole = SCNAction.move(to: position, duration: 0.5)
+//        let moveToPole = SCNAction.move(to: position, duration: 0.5)
+        let moveToPole = actionToMove(to: poleNode, duration: 0.5)
         position.y = 2.0 + 3.5 * Float(board.spheresAt(column: toColumn, row: toRow))
         let moveDown = SCNAction.move(to: position, duration: 0.5)
+//        let moveDown = actionToMoveDown(to: poleNode, column: toColumn, row: toRow)
         let move = SCNAction.sequence([wait, moveUp, moveToPole, moveDown])
         
-        try? board.addSphereWith(sphereNode.color, toColumn: toColumn, andRow: toRow, updateRemainCount: false)
-        contentView.add(sphereNode, toColumn: toColumn, andRow: toRow)
-
+//        try? board.addSphereWith(sphereNode.color, toColumn: toColumn, andRow: toRow, updateRemainCount: false)
+//        contentView.add(sphereNode, toColumn: toColumn, andRow: toRow)
+        add(sphere: sphereNode, column: toColumn, row: toRow, updateCounts: false)
+        
         move.timingMode = .easeOut
         aSphereIsMoving = true
         sphereNode.runAction(move) {
@@ -472,18 +484,11 @@ extension GameViewController {
         }
         let moveAndRemove = SCNAction.sequence([moveUp, wait, fade, remove, cleanUp])
 
-        let sphereNode = contentView.topSphereAt(column: column, row: row)
+        let sphereNode = contentView.removeTopSphereAt(column: column, row: row)
         aSphereIsMoving = true
         sphereNode?.runAction(moveAndRemove) {
             self.aSphereIsMoving = false
         }
-        
-//        switch sphereNode.color {
-//        case .red:
-//            contentView.redButtonStackView.isHidden = false
-//        case .white:
-//            contentView.whiteButtonStackView.isHidden = false
-//        }
         
     }
     
