@@ -8,6 +8,7 @@
 
 import UIKit
 import Messages
+import ThreeDMillBoard
 
 class MessagesViewController: MSMessagesAppViewController {
     
@@ -102,10 +103,10 @@ class MessagesViewController: MSMessagesAppViewController {
         }
     }
     
-    fileprivate func composeMessage(with board: Board, caption: String, session: MSSession? = nil) -> MSMessage {
+    fileprivate func composeMessage(with board: Board, caption: String, image: UIImage?, session: MSSession? = nil) -> MSMessage {
         
         let layout = MSMessageTemplateLayout()
-//        layout.image = board.renderSticker(opaque: true)
+        layout.image = image
         layout.caption = caption
         
         let message = MSMessage(session: session ?? MSSession())
@@ -121,7 +122,9 @@ extension MessagesViewController: GameViewControllerProtocol {
         
         guard let conversation = activeConversation else { fatalError("Expected a conversation") }
 
-        let message = composeMessage(with: board, caption: "Foo", session: conversation.selectedMessage?.session)
+        let image = controller.screenshot()
+        
+        let message = composeMessage(with: board, caption: "Your turn!", image: image, session: conversation.selectedMessage?.session)
         
         // Add the message to the conversation.
         conversation.insert(message) { error in

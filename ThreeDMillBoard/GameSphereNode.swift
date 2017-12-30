@@ -5,11 +5,11 @@
 import UIKit
 import SceneKit
 
-class GameSphereNode: SCNNode {
-    let color: SphereColor
-    var isMoving = true
+public final class GameSphereNode: SCNNode {
+    public let color: SphereColor
+    public var isMoving = true
     
-    init(geometry: SCNGeometry, color: SphereColor) {
+    public init(geometry: SCNGeometry, color: SphereColor) {
         
         self.color = color
         
@@ -19,7 +19,7 @@ class GameSphereNode: SCNNode {
         self.name = "Sphere"
     }
     
-    required init?(coder aDecoder: NSCoder) {
+    public required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 }

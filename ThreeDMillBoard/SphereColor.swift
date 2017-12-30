@@ -4,11 +4,11 @@
 
 import UIKit
 
-enum SphereColor: String {
+public enum SphereColor: String {
     case white
     case red
     
-    func uiColor() -> UIColor {
+    public func uiColor() -> UIColor {
         switch self {
         case .white: return UIColor.white
         case .red: return UIColor.red

@@ -5,6 +5,7 @@
 import UIKit
 //import QuartzCore
 import SceneKit
+import ThreeDMillBoard
 
 final class GameViewController: UIViewController {
     
@@ -65,6 +66,8 @@ final class GameViewController: UIViewController {
             contentView.whiteButtonStackView.isHidden = true
             contentView.redButtonStackView.isHidden = true
         }
+        
+//        contentView.fixCameraPosition()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -139,12 +142,6 @@ final class GameViewController: UIViewController {
             return .all
         }
     }
-    
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Release any cached data, images, etc that aren't in use.
-    }
-
 }
 
 extension GameViewController: ButtonActions {
@@ -301,17 +298,12 @@ extension GameViewController {
         position.z = poleNode.position.z
         
         let wait = SCNAction.wait(duration: 2)
-//        let moveToPole = SCNAction.move(to: position, duration: 0.5)
         let moveToPole = actionToMove(to: poleNode, duration: 0.5)
         
-//        position.y = 2.0 + 3.5 * Float(board.spheresAt(column: column, row: row))
-//        let moveDown = SCNAction.move(to: position, duration: 0.5)
         let moveDown = actionToMoveDown(to: poleNode, column: column, row: row, duration: 0.5)
         
         let move = SCNAction.sequence([wait, moveToPole, moveDown])
         
-//        try? board.addSphereWith(sphereNode.color, toColumn: column, andRow: row, updateRemainCount: false)
-//        contentView.add(sphereNode, toColumn: column, andRow: row)
         add(sphere: sphereNode, column: column, row: row, updateCounts: false)
         
         aSphereIsMoving = true
@@ -392,10 +384,7 @@ extension GameViewController {
         
         removeSphere(column: fromColumn, row: fromRow)
         
-//        var spherePosition = sphereNode.position
-//        spherePosition.y = GameView.startY
         let wait = SCNAction.wait(duration: 2)
-//        let moveUp = SCNAction.move(to: spherePosition, duration: 0.5)
         let moveUp = actionToMoveUp(sphere: sphereNode, duration: 0.5)
 
         let poleNode = contentView.poleNode(column: toColumn, row: toRow)
@@ -403,17 +392,12 @@ extension GameViewController {
         var position = sphereNode.position
         position.x = poleNode.position.x
         position.z = poleNode.position.z
-//        position.y = spherePosition.y
         
-//        let moveToPole = SCNAction.move(to: position, duration: 0.5)
         let moveToPole = actionToMove(to: poleNode, duration: 0.5)
         position.y = 2.0 + 3.5 * Float(board.spheresAt(column: toColumn, row: toRow))
         let moveDown = SCNAction.move(to: position, duration: 0.5)
-//        let moveDown = actionToMoveDown(to: poleNode, column: toColumn, row: toRow)
         let move = SCNAction.sequence([wait, moveUp, moveToPole, moveDown])
         
-//        try? board.addSphereWith(sphereNode.color, toColumn: toColumn, andRow: toRow, updateRemainCount: false)
-//        contentView.add(sphereNode, toColumn: toColumn, andRow: toRow)
         add(sphere: sphereNode, column: toColumn, row: toRow, updateCounts: false)
         
         move.timingMode = .easeOut
@@ -480,7 +464,6 @@ extension GameViewController {
         let cleanUp = SCNAction.run { _ in
             try? self.board.removeSphereFrom(column: column, andRow: row)
             self.board.mode = .addSpheres
-            self.delegate?.gameViewController(self, didFinishMoveWith: self.board)
         }
         let moveAndRemove = SCNAction.sequence([moveUp, wait, fade, remove, cleanUp])
 
@@ -488,6 +471,9 @@ extension GameViewController {
         aSphereIsMoving = true
         sphereNode?.runAction(moveAndRemove) {
             self.aSphereIsMoving = false
+            DispatchQueue.main.async {
+                self.delegate?.gameViewController(self, didFinishMoveWith: self.board)
+            }
         }
         
     }
@@ -536,6 +522,32 @@ extension GameViewController {
             present(alertController, animated: true, completion: nil)
             
         }
+    }
+    
+    func screenshot() -> UIImage? {
+        let snapshot = contentView.snapshot()
+        return imageWithImage(image: snapshot, croppedTo: CGRect(x: 0, y: view.frame.size.height*0.1, width: snapshot.size.width, height: snapshot.size.width+view.frame.size.height*0.2))
+    }
+    
+    func imageWithImage(image: UIImage, croppedTo rect: CGRect) -> UIImage {
+        if image.size.width > image.size.height {
+            return image
+        }
+        
+        UIGraphicsBeginImageContext(rect.size)
+        let context = UIGraphicsGetCurrentContext()
+        
+        let drawRect = CGRect(x: -rect.origin.x, y: -rect.origin.y, width: image.size.width, height: image.size.height)
+        
+        context?.clip(to: CGRect(x: 0, y: 0, width: rect.size.width, height: rect.size.height))
+        
+        image.draw(in: drawRect)
+        
+        let subImage = UIGraphicsGetImageFromCurrentImageContext()
+        
+        UIGraphicsEndImageContext()
+
+        return subImage!
     }
 }
 

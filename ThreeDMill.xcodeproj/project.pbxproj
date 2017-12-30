@@ -7,8 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		F24EF0991FE1960E008F6546 /* BoardChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F24EF0981FE1960E008F6546 /* BoardChecker.swift */; };
-		F293A0CA1FD84D4900D01503 /* Move.swift in Sources */ = {isa = PBXBuildFile; fileRef = F293A0C91FD84D4900D01503 /* Move.swift */; };
+		F2888A911FF3943300C405C9 /* ThreeDMillBoard.h in Headers */ = {isa = PBXBuildFile; fileRef = F2888A8F1FF3943300C405C9 /* ThreeDMillBoard.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F2888A941FF3943300C405C9 /* ThreeDMillBoard.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2888A8D1FF3943300C405C9 /* ThreeDMillBoard.framework */; };
+		F2888A951FF3943300C405C9 /* ThreeDMillBoard.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F2888A8D1FF3943300C405C9 /* ThreeDMillBoard.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		F2888AA41FF3945100C405C9 /* ThreeDMillBoard.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2888A8D1FF3943300C405C9 /* ThreeDMillBoard.framework */; };
 		F2C38AA01FD5A2840092ADDA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F2C38A9F1FD5A2840092ADDA /* Assets.xcassets */; };
 		F2C38AA71FD5A2840092ADDA /* ThreeDMill MessagesExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = F2C38AA61FD5A2840092ADDA /* ThreeDMill MessagesExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		F2C38AAC1FD5A2840092ADDA /* Messages.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2C38AAB1FD5A2840092ADDA /* Messages.framework */; };
@@ -17,13 +19,32 @@
 		F2C38AB41FD5A2840092ADDA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F2C38AB31FD5A2840092ADDA /* Assets.xcassets */; };
 		F2C38AC61FD5A2D20092ADDA /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C38ABF1FD5A2D10092ADDA /* GameViewController.swift */; };
 		F2C38AC71FD5A2D20092ADDA /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C38AC01FD5A2D10092ADDA /* GameView.swift */; };
-		F2C38AC81FD5A2D20092ADDA /* Board.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C38AC21FD5A2D10092ADDA /* Board.swift */; };
-		F2C38AC91FD5A2D20092ADDA /* GameSphereNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C38AC31FD5A2D10092ADDA /* GameSphereNode.swift */; };
-		F2C38ACA1FD5A2D20092ADDA /* Pole.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C38AC41FD5A2D10092ADDA /* Pole.swift */; };
-		F2C38ACB1FD5A2D20092ADDA /* SphereColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C38AC51FD5A2D10092ADDA /* SphereColor.swift */; };
+		F2F6596E1FF394B3007AF8D8 /* Board.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C38AC21FD5A2D10092ADDA /* Board.swift */; };
+		F2F6596F1FF3AA70007AF8D8 /* Pole.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C38AC41FD5A2D10092ADDA /* Pole.swift */; };
+		F2F659701FF3AA70007AF8D8 /* CheckResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2888A6C1FF38F6700C405C9 /* CheckResult.swift */; };
+		F2F659711FF3AA70007AF8D8 /* BoardChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F24EF0981FE1960E008F6546 /* BoardChecker.swift */; };
+		F2F659721FF3AA70007AF8D8 /* GameSphereNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C38AC31FD5A2D10092ADDA /* GameSphereNode.swift */; };
+		F2F659731FF3AA70007AF8D8 /* SphereColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C38AC51FD5A2D10092ADDA /* SphereColor.swift */; };
+		F2F659741FF3AA70007AF8D8 /* Move.swift in Sources */ = {isa = PBXBuildFile; fileRef = F293A0C91FD84D4900D01503 /* Move.swift */; };
+		F2F659761FF3ED8A007AF8D8 /* BoardCheckerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2F659751FF3ED8A007AF8D8 /* BoardCheckerTests.swift */; };
+		F2F659771FF4004E007AF8D8 /* ThreeDMillBoard.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2888A8D1FF3943300C405C9 /* ThreeDMillBoard.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		F2888A921FF3943300C405C9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F2C38A961FD5A2840092ADDA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F2888A8C1FF3943300C405C9;
+			remoteInfo = ThreeDMillBoard;
+		};
+		F2888AA51FF3945100C405C9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F2C38A961FD5A2840092ADDA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F2888A8C1FF3943300C405C9;
+			remoteInfo = ThreeDMillBoard;
+		};
 		F2C38AA81FD5A2840092ADDA /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = F2C38A961FD5A2840092ADDA /* Project object */;
@@ -34,6 +55,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		F2888A9A1FF3943300C405C9 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				F2888A951FF3943300C405C9 /* ThreeDMillBoard.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F2C38ABB1FD5A2840092ADDA /* Embed App Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -49,6 +81,12 @@
 
 /* Begin PBXFileReference section */
 		F24EF0981FE1960E008F6546 /* BoardChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardChecker.swift; sourceTree = "<group>"; };
+		F2888A6C1FF38F6700C405C9 /* CheckResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckResult.swift; sourceTree = "<group>"; };
+		F2888A8D1FF3943300C405C9 /* ThreeDMillBoard.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ThreeDMillBoard.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F2888A8F1FF3943300C405C9 /* ThreeDMillBoard.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ThreeDMillBoard.h; sourceTree = "<group>"; };
+		F2888A901FF3943300C405C9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F2888A9F1FF3945000C405C9 /* ThreeDMillBoardTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ThreeDMillBoardTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F2888AA31FF3945100C405C9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F293A0C91FD84D4900D01503 /* Move.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Move.swift; sourceTree = "<group>"; };
 		F2C38A9C1FD5A2840092ADDA /* ThreeDMill.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ThreeDMill.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F2C38A9F1FD5A2840092ADDA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -65,13 +103,38 @@
 		F2C38AC31FD5A2D10092ADDA /* GameSphereNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GameSphereNode.swift; sourceTree = "<group>"; };
 		F2C38AC41FD5A2D10092ADDA /* Pole.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Pole.swift; sourceTree = "<group>"; };
 		F2C38AC51FD5A2D10092ADDA /* SphereColor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SphereColor.swift; sourceTree = "<group>"; };
+		F2F659751FF3ED8A007AF8D8 /* BoardCheckerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardCheckerTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		F2888A891FF3943300C405C9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F2888A991FF3943300C405C9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F2888A941FF3943300C405C9 /* ThreeDMillBoard.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F2888A9C1FF3945000C405C9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F2888AA41FF3945100C405C9 /* ThreeDMillBoard.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F2C38AA31FD5A2840092ADDA /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F2F659771FF4004E007AF8D8 /* ThreeDMillBoard.framework in Frameworks */,
 				F2C38AAC1FD5A2840092ADDA /* Messages.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -79,11 +142,38 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		F2888A8E1FF3943300C405C9 /* ThreeDMillBoard */ = {
+			isa = PBXGroup;
+			children = (
+				F2888A8F1FF3943300C405C9 /* ThreeDMillBoard.h */,
+				F2C38AC21FD5A2D10092ADDA /* Board.swift */,
+				F24EF0981FE1960E008F6546 /* BoardChecker.swift */,
+				F2888A6C1FF38F6700C405C9 /* CheckResult.swift */,
+				F2C38AC31FD5A2D10092ADDA /* GameSphereNode.swift */,
+				F2C38AC41FD5A2D10092ADDA /* Pole.swift */,
+				F2C38AC51FD5A2D10092ADDA /* SphereColor.swift */,
+				F293A0C91FD84D4900D01503 /* Move.swift */,
+				F2888A901FF3943300C405C9 /* Info.plist */,
+			);
+			path = ThreeDMillBoard;
+			sourceTree = "<group>";
+		};
+		F2888AA01FF3945100C405C9 /* ThreeDMillBoardTests */ = {
+			isa = PBXGroup;
+			children = (
+				F2F659751FF3ED8A007AF8D8 /* BoardCheckerTests.swift */,
+				F2888AA31FF3945100C405C9 /* Info.plist */,
+			);
+			path = ThreeDMillBoardTests;
+			sourceTree = "<group>";
+		};
 		F2C38A951FD5A2840092ADDA = {
 			isa = PBXGroup;
 			children = (
 				F2C38A9E1FD5A2840092ADDA /* ThreeDMill */,
 				F2C38AAD1FD5A2840092ADDA /* ThreeDMill MessagesExtension */,
+				F2888A8E1FF3943300C405C9 /* ThreeDMillBoard */,
+				F2888AA01FF3945100C405C9 /* ThreeDMillBoardTests */,
 				F2C38AAA1FD5A2840092ADDA /* Frameworks */,
 				F2C38A9D1FD5A2840092ADDA /* Products */,
 			);
@@ -94,6 +184,8 @@
 			children = (
 				F2C38A9C1FD5A2840092ADDA /* ThreeDMill.app */,
 				F2C38AA61FD5A2840092ADDA /* ThreeDMill MessagesExtension.appex */,
+				F2888A8D1FF3943300C405C9 /* ThreeDMillBoard.framework */,
+				F2888A9F1FF3945000C405C9 /* ThreeDMillBoardTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -121,7 +213,6 @@
 				F2C38AAE1FD5A2840092ADDA /* MessagesViewController.swift */,
 				F2C38AC01FD5A2D10092ADDA /* GameView.swift */,
 				F2C38ABF1FD5A2D10092ADDA /* GameViewController.swift */,
-				F2C38AC11FD5A2D10092ADDA /* Board */,
 				F2C38AB01FD5A2840092ADDA /* MainInterface.storyboard */,
 				F2C38AB31FD5A2840092ADDA /* Assets.xcassets */,
 				F2C38AB51FD5A2840092ADDA /* Info.plist */,
@@ -129,33 +220,70 @@
 			path = "ThreeDMill MessagesExtension";
 			sourceTree = "<group>";
 		};
-		F2C38AC11FD5A2D10092ADDA /* Board */ = {
-			isa = PBXGroup;
-			children = (
-				F2C38AC21FD5A2D10092ADDA /* Board.swift */,
-				F24EF0981FE1960E008F6546 /* BoardChecker.swift */,
-				F2C38AC31FD5A2D10092ADDA /* GameSphereNode.swift */,
-				F2C38AC41FD5A2D10092ADDA /* Pole.swift */,
-				F2C38AC51FD5A2D10092ADDA /* SphereColor.swift */,
-				F293A0C91FD84D4900D01503 /* Move.swift */,
-			);
-			path = Board;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
+/* Begin PBXHeadersBuildPhase section */
+		F2888A8A1FF3943300C405C9 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F2888A911FF3943300C405C9 /* ThreeDMillBoard.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
 /* Begin PBXNativeTarget section */
+		F2888A8C1FF3943300C405C9 /* ThreeDMillBoard */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F2888A961FF3943300C405C9 /* Build configuration list for PBXNativeTarget "ThreeDMillBoard" */;
+			buildPhases = (
+				F2888A881FF3943300C405C9 /* Sources */,
+				F2888A891FF3943300C405C9 /* Frameworks */,
+				F2888A8A1FF3943300C405C9 /* Headers */,
+				F2888A8B1FF3943300C405C9 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ThreeDMillBoard;
+			productName = ThreeDMillBoard;
+			productReference = F2888A8D1FF3943300C405C9 /* ThreeDMillBoard.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		F2888A9E1FF3945000C405C9 /* ThreeDMillBoardTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F2888AA71FF3945100C405C9 /* Build configuration list for PBXNativeTarget "ThreeDMillBoardTests" */;
+			buildPhases = (
+				F2888A9B1FF3945000C405C9 /* Sources */,
+				F2888A9C1FF3945000C405C9 /* Frameworks */,
+				F2888A9D1FF3945000C405C9 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F2888AA61FF3945100C405C9 /* PBXTargetDependency */,
+			);
+			name = ThreeDMillBoardTests;
+			productName = ThreeDMillBoardTests;
+			productReference = F2888A9F1FF3945000C405C9 /* ThreeDMillBoardTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		F2C38A9B1FD5A2840092ADDA /* ThreeDMill */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = F2C38ABC1FD5A2840092ADDA /* Build configuration list for PBXNativeTarget "ThreeDMill" */;
 			buildPhases = (
 				F2C38A9A1FD5A2840092ADDA /* Resources */,
 				F2C38ABB1FD5A2840092ADDA /* Embed App Extensions */,
+				F2888A991FF3943300C405C9 /* Frameworks */,
+				F2888A9A1FF3943300C405C9 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				F2C38AA91FD5A2840092ADDA /* PBXTargetDependency */,
+				F2888A931FF3943300C405C9 /* PBXTargetDependency */,
 			);
 			name = ThreeDMill;
 			productName = ThreeDMill;
@@ -189,6 +317,14 @@
 				LastUpgradeCheck = 0910;
 				ORGANIZATIONNAME = dasdom;
 				TargetAttributes = {
+					F2888A8C1FF3943300C405C9 = {
+						CreatedOnToolsVersion = 9.1;
+						ProvisioningStyle = Automatic;
+					};
+					F2888A9E1FF3945000C405C9 = {
+						CreatedOnToolsVersion = 9.1;
+						ProvisioningStyle = Automatic;
+					};
 					F2C38A9B1FD5A2840092ADDA = {
 						CreatedOnToolsVersion = 9.1;
 						ProvisioningStyle = Automatic;
@@ -214,11 +350,27 @@
 			targets = (
 				F2C38A9B1FD5A2840092ADDA /* ThreeDMill */,
 				F2C38AA51FD5A2840092ADDA /* ThreeDMill MessagesExtension */,
+				F2888A8C1FF3943300C405C9 /* ThreeDMillBoard */,
+				F2888A9E1FF3945000C405C9 /* ThreeDMillBoardTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		F2888A8B1FF3943300C405C9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F2888A9D1FF3945000C405C9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F2C38A9A1FD5A2840092ADDA /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -239,25 +391,51 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		F2888A881FF3943300C405C9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F2F659741FF3AA70007AF8D8 /* Move.swift in Sources */,
+				F2F659731FF3AA70007AF8D8 /* SphereColor.swift in Sources */,
+				F2F659701FF3AA70007AF8D8 /* CheckResult.swift in Sources */,
+				F2F6596E1FF394B3007AF8D8 /* Board.swift in Sources */,
+				F2F659711FF3AA70007AF8D8 /* BoardChecker.swift in Sources */,
+				F2F6596F1FF3AA70007AF8D8 /* Pole.swift in Sources */,
+				F2F659721FF3AA70007AF8D8 /* GameSphereNode.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F2888A9B1FF3945000C405C9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F2F659761FF3ED8A007AF8D8 /* BoardCheckerTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F2C38AA21FD5A2840092ADDA /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				F2C38AC61FD5A2D20092ADDA /* GameViewController.swift in Sources */,
-				F2C38ACA1FD5A2D20092ADDA /* Pole.swift in Sources */,
-				F2C38ACB1FD5A2D20092ADDA /* SphereColor.swift in Sources */,
 				F2C38AC71FD5A2D20092ADDA /* GameView.swift in Sources */,
-				F293A0CA1FD84D4900D01503 /* Move.swift in Sources */,
-				F2C38AC81FD5A2D20092ADDA /* Board.swift in Sources */,
 				F2C38AAF1FD5A2840092ADDA /* MessagesViewController.swift in Sources */,
-				F24EF0991FE1960E008F6546 /* BoardChecker.swift in Sources */,
-				F2C38AC91FD5A2D20092ADDA /* GameSphereNode.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		F2888A931FF3943300C405C9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F2888A8C1FF3943300C405C9 /* ThreeDMillBoard */;
+			targetProxy = F2888A921FF3943300C405C9 /* PBXContainerItemProxy */;
+		};
+		F2888AA61FF3945100C405C9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F2888A8C1FF3943300C405C9 /* ThreeDMillBoard */;
+			targetProxy = F2888AA51FF3945100C405C9 /* PBXContainerItemProxy */;
+		};
 		F2C38AA91FD5A2840092ADDA /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = F2C38AA51FD5A2840092ADDA /* ThreeDMill MessagesExtension */;
@@ -277,6 +455,86 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		F2888A971FF3943300C405C9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = Q6PD97MRX4;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = ThreeDMillBoard/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.swiftandpainless.ThreeDMillBoard;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		F2888A981FF3943300C405C9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = Q6PD97MRX4;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = ThreeDMillBoard/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.swiftandpainless.ThreeDMillBoard;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		F2888AA81FF3945100C405C9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = Q6PD97MRX4;
+				INFOPLIST_FILE = ThreeDMillBoardTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.swiftandpainless.ThreeDMillBoardTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		F2888AA91FF3945100C405C9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = Q6PD97MRX4;
+				INFOPLIST_FILE = ThreeDMillBoardTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.swiftandpainless.ThreeDMillBoardTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		F2C38AB61FD5A2840092ADDA /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -427,6 +685,7 @@
 				DEVELOPMENT_TEAM = Q6PD97MRX4;
 				INFOPLIST_FILE = ThreeDMill/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.swiftandpainless.ThreeDMill;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
@@ -443,6 +702,7 @@
 				DEVELOPMENT_TEAM = Q6PD97MRX4;
 				INFOPLIST_FILE = ThreeDMill/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.swiftandpainless.ThreeDMill;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
@@ -453,6 +713,24 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		F2888A961FF3943300C405C9 /* Build configuration list for PBXNativeTarget "ThreeDMillBoard" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F2888A971FF3943300C405C9 /* Debug */,
+				F2888A981FF3943300C405C9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F2888AA71FF3945100C405C9 /* Build configuration list for PBXNativeTarget "ThreeDMillBoardTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F2888AA81FF3945100C405C9 /* Debug */,
+				F2888AA91FF3945100C405C9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		F2C38A991FD5A2840092ADDA /* Build configuration list for PBXProject "ThreeDMill" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

@@ -4,6 +4,7 @@
 
 import UIKit
 import SceneKit
+import ThreeDMillBoard
 
 protocol GameViewProtocol: class {
     func add(color: SphereColor) -> GameSphereNode
@@ -40,15 +41,15 @@ class GameView: SCNView, GameViewProtocol {
         
         let constraint = SCNLookAtConstraint(target: groundNode)
         constraint.isGimbalLockEnabled = true
-        constraint.influenceFactor = 0.9
+        constraint.influenceFactor = 0.6
 
         let camera = SCNCamera()
         camera.zFar = 10_000
         cameraNode.camera = camera
         if #available(iOSApplicationExtension 11.0, *) {
-            cameraNode.position = SCNVector3(0, 35, 40)
+            cameraNode.position = SCNVector3(0, 35, 45)
         } else {
-            cameraNode.position = SCNVector3(0, 45, 40)
+            cameraNode.position = SCNVector3(0, 45, 45)
         }
         cameraNode.constraints = [constraint]
         
@@ -154,6 +155,8 @@ class GameView: SCNView, GameViewProtocol {
         
         super.init(frame: frame, options: options)
         
+        backgroundColor = UIColor.black
+        
 //        addRedButton.addTarget(nil, action: .add, for: .touchUpInside)
 //        addWhiteButton.addTarget(nil, action: .add, for: .touchUpInside)
         doneButton.addTarget(nil, action: .done, for: .touchUpInside)
@@ -251,6 +254,18 @@ class GameView: SCNView, GameViewProtocol {
             }
         }
     }
+    
+//    func fixCameraPosition() {
+//        print("frame: \(frame)")
+//        print("frame: \(frame)")
+//        
+////        let zPosition = max(frame.size.width, frame.size.height)*0.07
+////        if #available(iOSApplicationExtension 11.0, *) {
+////            cameraNode.position = SCNVector3(0, 35, zPosition)
+////        } else {
+////            cameraNode.position = SCNVector3(0, 45, zPosition)
+////        }
+//    }
 
     @objc func pan(sender: UIPanGestureRecognizer) {
         let translation = sender.translation(in: self)

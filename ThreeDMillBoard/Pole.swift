@@ -4,8 +4,8 @@
 
 import Foundation
 
-final class Pole {
-    var sphereColors: [SphereColor] = []
+public final class Pole {
+    public var sphereColors: [SphereColor] = []
     var spheres: Int {
         return sphereColors.count
     }
