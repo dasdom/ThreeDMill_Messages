@@ -1,7 +1,3 @@
-//
-//  MessagesViewController.swift
-//  MessageAppDemo MessagesExtension
-//
 //  Created by dasdom on 03.12.17.
 //  Copyright © 2017 dasdom. All rights reserved.
 //
@@ -70,15 +66,21 @@ class MessagesViewController: MSMessagesAppViewController {
     }
     
     private func presentViewController(for conversation: MSConversation, with presentationStyle: MSMessagesAppPresentationStyle) {
-        // Remove any child view controllers that have been presented.
         removeAllChildViewControllers()
         
-        // Determine the controller to present.
-        let board = Board(message: conversation.selectedMessage) ?? Board()
-        let controller = GameViewController(board: board)
-        controller.delegate = self
+        let controller: UIViewController
+        if let senderId = conversation.selectedMessage?.senderParticipantIdentifier,
+            !conversation.remoteParticipantIdentifiers.contains(senderId) {
+            
+            controller = NotYourTurnViewController()
+        } else {
+            let board = Board(message: conversation.selectedMessage) ?? Board()
+            let gameController = GameViewController(board: board)
+            gameController.delegate = self
+            controller = gameController
+        }
         
-        // Embed the new controller.
+        
         addChildViewController(controller)
         
         controller.view.frame = view.bounds
@@ -126,7 +128,6 @@ extension MessagesViewController: GameViewControllerProtocol {
         
         let message = composeMessage(with: board, caption: "Your turn!", image: image, session: conversation.selectedMessage?.session)
         
-        // Add the message to the conversation.
         conversation.insert(message) { error in
             if let error = error {
                 print(error)

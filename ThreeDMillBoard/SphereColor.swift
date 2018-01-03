@@ -14,4 +14,11 @@ public enum SphereColor: String {
         case .red: return UIColor.red
         }
     }
+    
+    public func oposit() -> SphereColor {
+        switch self {
+        case .white: return .red
+        case .red: return .white
+        }
+    }
 }

@@ -7,10 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F22FC34C1FF8DE6700AFEE70 /* NotYourTurnViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F22FC34B1FF8DE6700AFEE70 /* NotYourTurnViewController.swift */; };
+		F22FC34E1FF8DE8100AFEE70 /* NotYourTurnView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F22FC34D1FF8DE8100AFEE70 /* NotYourTurnView.swift */; };
 		F2888A911FF3943300C405C9 /* ThreeDMillBoard.h in Headers */ = {isa = PBXBuildFile; fileRef = F2888A8F1FF3943300C405C9 /* ThreeDMillBoard.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F2888A941FF3943300C405C9 /* ThreeDMillBoard.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2888A8D1FF3943300C405C9 /* ThreeDMillBoard.framework */; };
 		F2888A951FF3943300C405C9 /* ThreeDMillBoard.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F2888A8D1FF3943300C405C9 /* ThreeDMillBoard.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F2888AA41FF3945100C405C9 /* ThreeDMillBoard.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2888A8D1FF3943300C405C9 /* ThreeDMillBoard.framework */; };
+		F295307F1FFB892700551757 /* HelpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F295307E1FFB892700551757 /* HelpViewController.swift */; };
+		F29530811FFB896100551757 /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F29530801FFB896100551757 /* HelpView.swift */; };
 		F2C38AA01FD5A2840092ADDA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F2C38A9F1FD5A2840092ADDA /* Assets.xcassets */; };
 		F2C38AA71FD5A2840092ADDA /* ThreeDMill MessagesExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = F2C38AA61FD5A2840092ADDA /* ThreeDMill MessagesExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		F2C38AAC1FD5A2840092ADDA /* Messages.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2C38AAB1FD5A2840092ADDA /* Messages.framework */; };
@@ -80,6 +84,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		F22FC34B1FF8DE6700AFEE70 /* NotYourTurnViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotYourTurnViewController.swift; sourceTree = "<group>"; };
+		F22FC34D1FF8DE8100AFEE70 /* NotYourTurnView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotYourTurnView.swift; sourceTree = "<group>"; };
 		F24EF0981FE1960E008F6546 /* BoardChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardChecker.swift; sourceTree = "<group>"; };
 		F2888A6C1FF38F6700C405C9 /* CheckResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckResult.swift; sourceTree = "<group>"; };
 		F2888A8D1FF3943300C405C9 /* ThreeDMillBoard.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ThreeDMillBoard.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -88,6 +94,8 @@
 		F2888A9F1FF3945000C405C9 /* ThreeDMillBoardTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ThreeDMillBoardTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F2888AA31FF3945100C405C9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F293A0C91FD84D4900D01503 /* Move.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Move.swift; sourceTree = "<group>"; };
+		F295307E1FFB892700551757 /* HelpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpViewController.swift; sourceTree = "<group>"; };
+		F29530801FFB896100551757 /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
 		F2C38A9C1FD5A2840092ADDA /* ThreeDMill.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ThreeDMill.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F2C38A9F1FD5A2840092ADDA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F2C38AA11FD5A2840092ADDA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -211,8 +219,12 @@
 			isa = PBXGroup;
 			children = (
 				F2C38AAE1FD5A2840092ADDA /* MessagesViewController.swift */,
-				F2C38AC01FD5A2D10092ADDA /* GameView.swift */,
 				F2C38ABF1FD5A2D10092ADDA /* GameViewController.swift */,
+				F2C38AC01FD5A2D10092ADDA /* GameView.swift */,
+				F22FC34B1FF8DE6700AFEE70 /* NotYourTurnViewController.swift */,
+				F22FC34D1FF8DE8100AFEE70 /* NotYourTurnView.swift */,
+				F295307E1FFB892700551757 /* HelpViewController.swift */,
+				F29530801FFB896100551757 /* HelpView.swift */,
 				F2C38AB01FD5A2840092ADDA /* MainInterface.storyboard */,
 				F2C38AB31FD5A2840092ADDA /* Assets.xcassets */,
 				F2C38AB51FD5A2840092ADDA /* Info.plist */,
@@ -418,7 +430,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				F2C38AC61FD5A2D20092ADDA /* GameViewController.swift in Sources */,
+				F295307F1FFB892700551757 /* HelpViewController.swift in Sources */,
 				F2C38AC71FD5A2D20092ADDA /* GameView.swift in Sources */,
+				F29530811FFB896100551757 /* HelpView.swift in Sources */,
+				F22FC34E1FF8DE8100AFEE70 /* NotYourTurnView.swift in Sources */,
+				F22FC34C1FF8DE6700AFEE70 /* NotYourTurnViewController.swift in Sources */,
 				F2C38AAF1FD5A2840092ADDA /* MessagesViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

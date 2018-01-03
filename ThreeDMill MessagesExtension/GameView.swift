@@ -11,18 +11,21 @@ protocol GameViewProtocol: class {
     func pole(for node: SCNNode) -> (Int, Int)?
 }
 
-class GameView: SCNView, GameViewProtocol {
+final class GameView: SCNView, GameViewProtocol {
 
     let cameraNode = SCNNode()
     let cameraOrbit = SCNNode()
     let spotLightNode = SCNNode()
-    var poleNodes: [[SCNNode]] = []
+    let baseNode = SCNNode()
+    let poleNodes: [[SCNNode]]
 //    let textNode: SCNNode
-    var startAngleY: Float = 0.0
-    var startPositionY: Float = 0.0
+    private var startAngleY: Float = 0.0
+    private var startPositionY: Float = 0.0
+//    private var startAngleSpotY: Float = 0.0
     let remainingWhiteSpheresLabel: UILabel
     let whiteButtonStackView: UIStackView
     let doneButton: UIButton
+    let helpButton: UIButton
     let remainingRedSpheresLabel: UILabel
     let redButtonStackView: UIStackView
     var gameSphereNodes: [[[GameSphereNode]]] = []
@@ -37,11 +40,11 @@ class GameView: SCNView, GameViewProtocol {
         groundGeometry.reflectivity = 0
         groundGeometry.materials = [groundMaterial]
         let groundNode = SCNNode(geometry: groundGeometry)
-        groundNode.physicsBody = SCNPhysicsBody(type: .static, shape: nil)
+        groundNode.position = SCNVector3(0, -6, 0)
         
         let constraint = SCNLookAtConstraint(target: groundNode)
         constraint.isGimbalLockEnabled = true
-        constraint.influenceFactor = 0.6
+        constraint.influenceFactor = 0.8
 
         let camera = SCNCamera()
         camera.zFar = 10_000
@@ -72,9 +75,17 @@ class GameView: SCNView, GameViewProtocol {
         spotLightNode.position = SCNVector3(20, 50, 50)
         spotLightNode.constraints = [constraint]
         
+        let baseGeometry = SCNBox(width: 30, height: 6, length: 30, chamferRadius: 2)
+        let baseMaterial = SCNMaterial()
+        baseMaterial.diffuse.contents = UIColor(red: 0.8, green: 0.7, blue: 0.2, alpha: 1)
+        baseGeometry.materials = [baseMaterial]
+        baseNode.geometry = baseGeometry
+        baseNode.position = SCNVector3(0, -3, 0)
+        
         let boardWidth: Float = 22
         let poleSpacing = boardWidth/3.0
         
+        var tempPoleNodes: [[SCNNode]] = []
         for j in 0..<Board.numberOfColumns {
             var columnNodes: [SCNNode] = []
             for i in 0..<Board.numberOfColumns {
@@ -87,8 +98,10 @@ class GameView: SCNView, GameViewProtocol {
                 
                 columnNodes.append(poleNode)
             }
-            poleNodes.append(columnNodes)
+            tempPoleNodes.append(columnNodes)
         }
+        
+        poleNodes = tempPoleNodes
         
 //        let text = SCNText(string: "Mill", extrusionDepth: 1)
 //        text.font = UIFont.boldSystemFont(ofSize: 10)
@@ -146,6 +159,13 @@ class GameView: SCNView, GameViewProtocol {
         doneButton.titleLabel?.font = UIFont.systemFont(ofSize: 30)
         doneButton.isHidden = true
         
+        helpButton = button()
+        helpButton.translatesAutoresizingMaskIntoConstraints = false
+        helpButton.setTitle("?", for: .normal)
+        helpButton.titleLabel?.font = UIFont.systemFont(ofSize: 15)
+        helpButton.contentEdgeInsets = UIEdgeInsets(top: 3, left: 10, bottom: 3, right: 10)
+        helpButton.addTarget(nil, action: .help, for: .touchUpInside)
+
         surrenderButton = button()
         surrenderButton.translatesAutoresizingMaskIntoConstraints = false
         surrenderButton.setTitle("surrender", for: .normal)
@@ -166,8 +186,10 @@ class GameView: SCNView, GameViewProtocol {
         scene = SCNScene()
         
         scene?.rootNode.addChildNode(groundNode)
+        scene?.rootNode.addChildNode(baseNode)
         scene?.rootNode.addChildNode(cameraOrbit)
-        scene?.rootNode.addChildNode(spotLightNode)
+//        scene?.rootNode.addChildNode(spotLightNode)
+        cameraOrbit.addChildNode(spotLightNode)
 //        scene?.rootNode.addChildNode(textNode)
 
         for j in 0..<Board.numberOfColumns {
@@ -179,6 +201,7 @@ class GameView: SCNView, GameViewProtocol {
         addSubview(redButtonStackView)
         addSubview(whiteButtonStackView)
         addSubview(doneButton)
+        addSubview(helpButton)
         addSubview(surrenderButton)
         
         redButtonStackView.translatesAutoresizingMaskIntoConstraints = false
@@ -207,7 +230,9 @@ class GameView: SCNView, GameViewProtocol {
             redView.heightAnchor.constraint(equalToConstant: sphereIndicatorHeight),
             redView.widthAnchor.constraint(equalTo: redView.heightAnchor),
             surrenderButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            surrenderButton.topAnchor.constraint(equalTo: topAnchor, constant: 10)
+            surrenderButton.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            helpButton.topAnchor.constraint(equalTo: surrenderButton.topAnchor),
+            helpButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10)
             ])
         
         let panRecognizer = UIPanGestureRecognizer(target: self, action: #selector(pan))
@@ -273,7 +298,9 @@ class GameView: SCNView, GameViewProtocol {
         switch sender.state {
         case .began:
             startAngleY = cameraOrbit.eulerAngles.y
+//            startAngleY = baseNode.eulerAngles.y
             startPositionY = cameraOrbit.position.y
+//            startAngleSpotY = spotLightNode.eulerAngles.y
         default:
             break
         }
@@ -289,6 +316,8 @@ class GameView: SCNView, GameViewProtocol {
             }
         } else {
             cameraOrbit.eulerAngles.y = startAngleY - GLKMathDegreesToRadians(Float(translation.x))
+            
+//            spotLightNode.eulerAngles.y = startAngleSpotY - GLKMathDegreesToRadians(Float(translation.x))
         }
     }
 
@@ -396,14 +425,14 @@ class GameView: SCNView, GameViewProtocol {
 }
 
 @objc protocol ButtonActions {
-//    @objc func add(sender: UIButton!)
     @objc func done(sender: UIButton!)
     @objc func surrender(sender: UIButton!)
+    @objc func help(sender: UIButton!)
 }
 
 extension Selector {
-//    static let add = #selector(ButtonActions.add(sender:))
     static let done = #selector(ButtonActions.done(sender:))
     static let surrender = #selector(ButtonActions.surrender(sender:))
+    static let help = #selector(ButtonActions.help(sender:))
 }
 

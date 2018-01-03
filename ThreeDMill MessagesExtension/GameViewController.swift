@@ -252,6 +252,20 @@ extension GameViewController {
             
             _ = mill(on: board, sphereNode: sphereNode)
 
+            switch board.mode {
+            case .addSpheres:
+                print("do nothing")
+            default:
+                if !board.canMove(for: sphereNode.color.oposit()) {
+                    timer?.invalidate()
+                    let alert = UIAlertController(title: "Congratulations", message: "You won!", preferredStyle: .alert)
+                    
+                    let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+                    alert.addAction(okAction)
+                    
+                    present(alert, animated: true, completion: nil)
+                }
+            }
         }
         move.timingMode = .easeOut
         aSphereIsMoving = true
@@ -448,6 +462,11 @@ extension GameViewController {
         delegate?.gameViewController(self, didFinishMoveWith: board)
     }
     
+    func help(sender: UIButton!) {
+        let navigationController = UINavigationController(rootViewController: NotYourTurnViewController())
+        present(navigationController, animated: true, completion: nil)
+    }
+    
     private func removeSphereFrom(node: SCNNode, column: Int, row: Int) {
         
         if !board.canRemoveSphereFrom(column: column, row: row) {
@@ -461,15 +480,13 @@ extension GameViewController {
         let fade = SCNAction.fadeOpacity(to: 0.1, duration: 0.1)
         let remove = SCNAction.removeFromParentNode()
         remove.timingMode = .easeOut
-        let cleanUp = SCNAction.run { _ in
-            try? self.board.removeSphereFrom(column: column, andRow: row)
-            self.board.mode = .addSpheres
-        }
-        let moveAndRemove = SCNAction.sequence([moveUp, wait, fade, remove, cleanUp])
+        
+        let moveAndRemove = SCNAction.sequence([moveUp, wait, fade, remove])
 
         let sphereNode = contentView.removeTopSphereAt(column: column, row: row)
         aSphereIsMoving = true
         sphereNode?.runAction(moveAndRemove) {
+            try? self.board.removeSphereFrom(column: column, andRow: row)
             self.aSphereIsMoving = false
             DispatchQueue.main.async {
                 self.delegate?.gameViewController(self, didFinishMoveWith: self.board)
