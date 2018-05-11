@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		F22FC34C1FF8DE6700AFEE70 /* NotYourTurnViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F22FC34B1FF8DE6700AFEE70 /* NotYourTurnViewController.swift */; };
 		F22FC34E1FF8DE8100AFEE70 /* NotYourTurnView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F22FC34D1FF8DE8100AFEE70 /* NotYourTurnView.swift */; };
+		F266F54E2044ABEE007D8570 /* BoardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F266F54D2044ABEE007D8570 /* BoardTests.swift */; };
 		F2888A911FF3943300C405C9 /* ThreeDMillBoard.h in Headers */ = {isa = PBXBuildFile; fileRef = F2888A8F1FF3943300C405C9 /* ThreeDMillBoard.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F2888A941FF3943300C405C9 /* ThreeDMillBoard.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2888A8D1FF3943300C405C9 /* ThreeDMillBoard.framework */; };
 		F2888A951FF3943300C405C9 /* ThreeDMillBoard.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F2888A8D1FF3943300C405C9 /* ThreeDMillBoard.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -87,6 +88,7 @@
 		F22FC34B1FF8DE6700AFEE70 /* NotYourTurnViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotYourTurnViewController.swift; sourceTree = "<group>"; };
 		F22FC34D1FF8DE8100AFEE70 /* NotYourTurnView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotYourTurnView.swift; sourceTree = "<group>"; };
 		F24EF0981FE1960E008F6546 /* BoardChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardChecker.swift; sourceTree = "<group>"; };
+		F266F54D2044ABEE007D8570 /* BoardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardTests.swift; sourceTree = "<group>"; };
 		F2888A6C1FF38F6700C405C9 /* CheckResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckResult.swift; sourceTree = "<group>"; };
 		F2888A8D1FF3943300C405C9 /* ThreeDMillBoard.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ThreeDMillBoard.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F2888A8F1FF3943300C405C9 /* ThreeDMillBoard.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ThreeDMillBoard.h; sourceTree = "<group>"; };
@@ -169,6 +171,7 @@
 		F2888AA01FF3945100C405C9 /* ThreeDMillBoardTests */ = {
 			isa = PBXGroup;
 			children = (
+				F266F54D2044ABEE007D8570 /* BoardTests.swift */,
 				F2F659751FF3ED8A007AF8D8 /* BoardCheckerTests.swift */,
 				F2888AA31FF3945100C405C9 /* Info.plist */,
 			);
@@ -421,6 +424,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F266F54E2044ABEE007D8570 /* BoardTests.swift in Sources */,
 				F2F659761FF3ED8A007AF8D8 /* BoardCheckerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

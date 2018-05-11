@@ -66,7 +66,7 @@ extension BoardChecker {
                     result = tempResult
                     lastMill = resultString
                 } else {
-                    assert(false, "Unexpected! Fix!")
+                    tempSeenMills.append(resultString)
                 }
                 
             }

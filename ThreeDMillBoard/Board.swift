@@ -11,6 +11,7 @@ public extension Notification.Name {
 
 public enum BoardMode {
     case addSpheres
+    case showMill(color: SphereColor)
     case removeSphere
     case move(color: SphereColor)
     case surrender
@@ -24,11 +25,30 @@ public final class Board {
     private var remainingWhiteSpheres = 32
     private var remainingRedSpheres = 32
     public private(set) var lastMoves: [Move] = []
+    public private(set) var lastAnimationMoves: [Move] = []
     private var columnsRowsWithRemovableSpheres: [String] = []
-    private(set) var lastMill: String? = nil
+    private(set) var _lastMill: String? = nil
     public var surrendered = false
+    public var receivedURL: URL? = nil
     
     private var seenMills: [String] = []
+    
+    public var lastMill: [(Int, Int, Int)]? {
+//        guard let lastMill = _lastMill else { return nil }
+//        let compoments = lastMill.components(separatedBy: ".")
+//        return compoments.map { sphereString in
+//            let characterStrings = sphereString.map({ character in
+//                return String(character)
+//            })
+//            return (Int(characterStrings[0])!, Int(characterStrings[1])!, Int(characterStrings[2])!)
+//        }
+        
+        return _lastMill?.components(separatedBy: ".")
+            .map { str -> (Int, Int, Int) in
+                let ints = str.map(String.init).flatMap(Int.init)
+                return (ints[0], ints[1], ints[2])
+        }
+    }
     
     public var url: URL {
         var queryItems: [URLQueryItem] = []
@@ -50,7 +70,7 @@ public final class Board {
                 for sphereColor in pole.sphereColors {
                     poleArray.append("\(sphereColor)")
                 }
-                for move in lastMoves {
+                for move in lastMoves.reversed() {
                     if move.to.column == column, move.to.row == row {
                         poleArray.removeLast()
                     }
@@ -73,7 +93,7 @@ public final class Board {
         queryItems.append(URLQueryItem(name: "remainingWhite", value: "\(remainingWhiteSpheres)"))
         queryItems.append(URLQueryItem(name: "remainingRed", value: "\(remainingRedSpheres)"))
 
-        if let lastMill = lastMill {
+        if let lastMill = _lastMill {
             queryItems.append(URLQueryItem(name: "lastMill", value: "\(lastMill)"))
         }
         
@@ -85,6 +105,9 @@ public final class Board {
     }
     
     public init(url: URL? = nil) {
+        
+        receivedURL = url
+        
         poles = []
         for _ in 0..<Board.numberOfColumns {
             var column: [Pole] = []
@@ -147,7 +170,7 @@ public final class Board {
                 let to = Position(column: toColumn, row: toRow, floor: toFloor)
                 guard let sphereColor = SphereColor(rawValue: value) else { fatalError("no color") }
                 let move = Move(from: from, to: to, color: sphereColor)
-                lastMoves.append(move)
+                lastAnimationMoves.append(move)
             } else if nameComponents.count == 1 {
                 let name = nameComponents[0]
                 if name == "seenMills" {
@@ -162,22 +185,23 @@ public final class Board {
                 } else if name == "surrendered" {
                     surrendered = true
                 } else if name == "lastMill" {
-                    lastMill = value
+                    print("value: \(value)")
+                    _lastMill = value
                 }
             }
         }
-        print("lastMoves: \(lastMoves)")
+        print("lastAnimationMoves: \(lastAnimationMoves)")
         
         if remainingRedSpheres < 1, remainingWhiteSpheres < 1 {
-            guard let lastMove = lastMoves.last else { fatalError("No last move? How is that possible?") }
+            guard let lastMove = lastAnimationMoves.last else { fatalError("No last move? How is that possible?") }
             if lastMove.to.column < 0 {
                 mode = .move(color: lastMove.color)
             } else {
                 switch lastMove.color {
-                case .red:
-                    mode = .move(color: .white)
+                case .r:
+                    mode = .move(color: .w)
                 default:
-                    mode = .move(color: .red)
+                    mode = .move(color: .r)
                 }
             }
         } else {
@@ -210,7 +234,7 @@ extension Board {
         
         let floor = poles[column][row].sphereColors.count
         let move: Move
-        if let previousMove = lastMoves.first {
+        if let previousMove = lastMoves.last {
             let from = previousMove.from
             move = Move(from: Position(column: from.column, row: from.row, floor: from.floor), to: Position(column: column, row: row, floor: floor), color: color)
             lastMoves = [move]
@@ -223,14 +247,14 @@ extension Board {
         
         if updateRemainCount {
             switch color {
-            case .red:
+            case .r:
                 remainingRedSpheres -= 1
-            case .white:
+            case .w:
                 remainingWhiteSpheres -= 1
             }
         }
         
-        NotificationCenter.default.post(name: .numberOfRemainingSpheresChanged, object: nil, userInfo: [SphereColor.white: remainingWhiteSpheres, SphereColor.red: remainingRedSpheres])
+        NotificationCenter.default.post(name: .numberOfRemainingSpheresChanged, object: nil, userInfo: [SphereColor.w: remainingWhiteSpheres, SphereColor.r: remainingRedSpheres])
     }
     
     public func removeSphereFrom(column: Int, andRow row: Int, updateCounts: Bool = true) throws {
@@ -240,12 +264,16 @@ extension Board {
         
         guard let sphereColor = poles[column][row].sphereColors.last else { fatalError("no sphere color") }
         
+        if case .showMill = mode {
+            assert(false)
+        }
+        
         switch (mode, sphereColor) {
-        case (.addSpheres, .red):
+        case (.addSpheres, .r):
             if updateCounts {
                 remainingRedSpheres += 1
             }
-        case (.addSpheres, .white):
+        case (.addSpheres, .w):
             if updateCounts {
                 remainingWhiteSpheres += 1
             }
@@ -307,7 +335,7 @@ extension Board {
         let checkResult = BoardChecker.checkForMatch(poles: poles, seenMills: seenMills)
         
         seenMills = checkResult.seenMills
-        lastMill = checkResult.lastMill
+        _lastMill = checkResult.lastMill
         
         return checkResult.result
     }
@@ -320,9 +348,10 @@ extension Board {
 
 extension Board {
     public convenience init?(message: MSMessage?) {
-        guard let messageURL = message?.url else { return nil }
-//        guard let messageURL = message?.url ??
-//            URL(string: "?3,1=white&0,0=white,red&0,1=white,red&0,2=white&1,0=white,red&1,1=white,red&1,2=white,red&1,3=white,red&-1,-1,-1,0,2,1=red&remainingRed=1&remainingWhite=1&seenMills=100.110.120.130,101.111.121.131") else { return nil }
+//        guard let messageURL = message?.url else { return nil }
+      
+        guard let messageURL = message?.url ??
+            URL(string: "?3,1=w&0,0=w,r&0,1=w,r&0,2=w&1,0=w,r&1,1=w,r&1,2=w,r&1,3=w,r&-1,-1,-1,0,2,1=r&remainingRed=1&remainingWhite=1&seenMills=100.110.120.130,101.111.121.131") else { return nil }
 
         self.init(url: messageURL)
     }

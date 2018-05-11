@@ -5,20 +5,20 @@
 import UIKit
 
 public enum SphereColor: String {
-    case white
-    case red
+    case w
+    case r
     
     public func uiColor() -> UIColor {
         switch self {
-        case .white: return UIColor.white
-        case .red: return UIColor.red
+        case .w: return UIColor.white
+        case .r: return UIColor.red
         }
     }
     
     public func oposit() -> SphereColor {
         switch self {
-        case .white: return .red
-        case .red: return .white
+        case .w: return .r
+        case .r: return .w
         }
     }
 }

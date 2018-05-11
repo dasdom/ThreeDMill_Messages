@@ -112,6 +112,7 @@ class MessagesViewController: MSMessagesAppViewController {
         layout.caption = caption
         
         let message = MSMessage(session: session ?? MSSession())
+//        let message = MSMessage()
         message.url = board.url
         message.layout = layout
         
