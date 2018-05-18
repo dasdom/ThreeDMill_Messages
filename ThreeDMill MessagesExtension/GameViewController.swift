@@ -44,7 +44,7 @@ final class GameViewController: UIViewController {
 
         contentView.update(with: board)
         
-        print("lastMill: \(board.lastMill)")
+        print("lastMill: \(String(describing: board.lastMill))")
         
         if let _ = board.lastMill {
             contentView.continueButton.setTitle("Show mill", for: .normal)
@@ -303,7 +303,7 @@ extension GameViewController {
             _ = mill(on: board, sphereNode: sphereNode)
             
             switch board.mode {
-            case .addSpheres, .showMill(color: _):
+            case .showMill(color: _):
                 print("do nothing")
             default:
                 if !board.canMove(for: sphereNode.color.oposit()) {
@@ -327,7 +327,8 @@ extension GameViewController {
     func moveSphereUpOn(column: Int, row: Int) {
         
         guard let sphereNode = contentView.topSphereAt(column: column, row: row) else {
-            fatalError("no sphere to move up")
+//            fatalError("no sphere to move up")
+            return
         }
         
         if case .move(color: let color) = board.mode, sphereNode.color != color {
