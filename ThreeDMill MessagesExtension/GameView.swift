@@ -13,171 +13,77 @@ protocol GameViewProtocol: class {
 
 final class GameView: SCNView, GameViewProtocol {
 
-    let cameraNode = SCNNode()
-    let cameraOrbit = SCNNode()
-    let spotLightNode = SCNNode()
-    let baseNode = SCNNode()
+    let cameraNode: SCNNode
+    let cameraOrbit: SCNNode
+    let spotLightNode: SCNNode
+    let baseNode: SCNNode
     let poleNodes: [[SCNNode]]
     let textNode: SCNNode
-    let textOrbit = SCNNode()
+    let textOrbit: SCNNode
     private var startAngleY: Float = 0.0
     private var startPositionY: Float = 0.0
-//    private var startAngleSpotY: Float = 0.0
     let remainingWhiteSpheresLabel: UILabel
-    let whiteButtonStackView: UIStackView
+    let remainingWhiteInfoStackView: UIStackView
     let doneButton: UIButton
     let helpButton: UIButton
     let continueButton: UIButton
     let remainingRedSpheresLabel: UILabel
-    let redButtonStackView: UIStackView
+    let remainingRedInfoStackView: UIStackView
     var gameSphereNodes: [[[GameSphereNode]]] = []
     let surrenderButton: UIButton
     let reanimateButton: UIButton
+    let emitter = SCNParticleSystem(named: "confetti", inDirectory: nil)
     static let startY: Float = 25.0
     static let preAnimationStartPosition = SCNVector3(x: 0, y: GameView.startY+20, z: 0)
     static let startPosition = SCNVector3(x: 0, y: GameView.startY, z: 0)
 
     override init(frame: CGRect, options: [String : Any]? = nil) {
         
-        let groundMaterial = SCNMaterial()
-        groundMaterial.diffuse.contents = UIColor.brown
-        let groundGeometry = SCNFloor()
-        groundGeometry.reflectivity = 0
-        groundGeometry.materials = [groundMaterial]
-        let groundNode = SCNNode(geometry: groundGeometry)
-        groundNode.position = SCNVector3(0, -6, 0)
+        let groundNode = GameNodeFactory.ground()
         
         let constraint = SCNLookAtConstraint(target: groundNode)
         constraint.isGimbalLockEnabled = true
         constraint.influenceFactor = 0.8
-
-        let camera = SCNCamera()
-        camera.zFar = 10_000
-        cameraNode.camera = camera
-        if #available(iOSApplicationExtension 11.0, *) {
-            cameraNode.position = SCNVector3(0, 35, 45)
-        } else {
-            cameraNode.position = SCNVector3(0, 45, 45)
-        }
-        cameraNode.constraints = [constraint]
         
+        cameraNode = GameNodeFactory.camera(constraint: constraint)
+        
+        cameraOrbit = SCNNode()
         cameraOrbit.addChildNode(cameraNode)
-
-        let ambientLight = SCNLight()
-        ambientLight.color = UIColor.gray
-        ambientLight.type = SCNLight.LightType.ambient
-//        ambientLight.intensity = 1500
-        cameraNode.light = ambientLight
         
-        let spotLight = SCNLight()
-        spotLight.type = SCNLight.LightType.spot
-        spotLight.castsShadow = true
-        spotLight.spotInnerAngle = 70.0
-        spotLight.spotOuterAngle = 90.0
-        spotLight.zFar = 500
-        spotLight.intensity = 800
-        spotLightNode.light = spotLight
-        spotLightNode.position = SCNVector3(20, 50, 50)
-        spotLightNode.constraints = [constraint]
+        spotLightNode = GameNodeFactory.spotLight(constraint: constraint)
         
-        let baseGeometry = SCNBox(width: 30, height: 6, length: 30, chamferRadius: 2)
-        let baseMaterial = SCNMaterial()
-        baseMaterial.diffuse.contents = UIColor(red: 0.8, green: 0.7, blue: 0.2, alpha: 1)
-        baseGeometry.materials = [baseMaterial]
-        baseNode.geometry = baseGeometry
-        baseNode.position = SCNVector3(0, -3, 0)
+        baseNode = GameNodeFactory.base()
         
-        let boardWidth: Float = 22
-        let poleSpacing = boardWidth/3.0
+        poleNodes = GameNodeFactory.poles(columns: Board.numberOfColumns)
         
-        var tempPoleNodes: [[SCNNode]] = []
-        for j in 0..<Board.numberOfColumns {
-            var columnNodes: [SCNNode] = []
-            for i in 0..<Board.numberOfColumns {
-                let poleGeometry = SCNCylinder(radius: 1.4, height: 24)
-                let poleMaterial = SCNMaterial()
-                poleMaterial.diffuse.contents = UIColor.yellow.withAlphaComponent(0.8)
-                poleGeometry.materials = [poleMaterial]
-                let poleNode = SCNNode(geometry: poleGeometry)
-                poleNode.position = SCNVector3(x: poleSpacing*Float(i) - boardWidth/2.0, y: 5, z: poleSpacing*Float(j) - boardWidth/2.0)
-                
-                columnNodes.append(poleNode)
-            }
-            tempPoleNodes.append(columnNodes)
-        }
+        textNode = GameNodeFactory.text(string: "Mill")
         
-        poleNodes = tempPoleNodes
-        
-        let text = SCNText(string: "Mill", extrusionDepth: 1)
-        text.font = UIFont.boldSystemFont(ofSize: 10)
-        textNode = SCNNode(geometry: text)
-        textNode.position = SCNVector3(x: -10, y: 15, z: 15)
-        textNode.isHidden = true
-        textNode.castsShadow = false
-        
+        textOrbit = SCNNode()
         textOrbit.addChildNode(textNode)
         
-        let sphereIndicatorHeight = CGFloat(20)
+        let whiteView = GameViewFactory.colorIndicatorView(UIColor.white)
+        remainingWhiteSpheresLabel = GameViewFactory.remainingSpheresLable()
+        remainingWhiteInfoStackView = GameViewFactory.remainingInfoStackView(views: [whiteView, remainingWhiteSpheresLabel])
         
-        let whiteView = UIView()
-        whiteView.backgroundColor = UIColor.white
-        whiteView.layer.cornerRadius = sphereIndicatorHeight/2.0
-        
-        remainingWhiteSpheresLabel = UILabel()
-        remainingWhiteSpheresLabel.text = "32"
-        remainingWhiteSpheresLabel.textColor = UIColor.white
-        remainingWhiteSpheresLabel.textAlignment = .center
-        remainingWhiteSpheresLabel.font = UIFont.systemFont(ofSize: 20)
-        
-        whiteButtonStackView = UIStackView(arrangedSubviews: [whiteView, remainingWhiteSpheresLabel])
-        whiteButtonStackView.axis = .vertical
-        whiteButtonStackView.alignment = .center
-        whiteButtonStackView.spacing = 5
-        
-        let redView = UIView()
-        redView.backgroundColor = UIColor.red
-        redView.layer.cornerRadius = sphereIndicatorHeight/2.0
+        let redView = GameViewFactory.colorIndicatorView(UIColor.red)
+        remainingRedSpheresLabel = GameViewFactory.remainingSpheresLable()
+        remainingRedInfoStackView = GameViewFactory.remainingInfoStackView(views: [redView, remainingRedSpheresLabel])
 
-        remainingRedSpheresLabel = UILabel()
-        remainingRedSpheresLabel.text = "32"
-        remainingRedSpheresLabel.textColor = UIColor.white
-        remainingRedSpheresLabel.textAlignment = .center
-        remainingRedSpheresLabel.font = UIFont.systemFont(ofSize: 20)
-
-        redButtonStackView = UIStackView(arrangedSubviews: [redView, remainingRedSpheresLabel])
-        redButtonStackView.axis = .vertical
-        redButtonStackView.alignment = .center
-        redButtonStackView.spacing = 5
-        
-        func button(title: String, fontSize: CGFloat) -> UIButton {
-            let button = UIButton(type: .system)
-            button.translatesAutoresizingMaskIntoConstraints = false
-            button.setTitle(title, for: .normal)
-            button.tintColor = .white
-            let buttonFont = UIFont.systemFont(ofSize: fontSize)
-            button.titleLabel?.font = buttonFont
-            button.layer.borderWidth = 0.5
-            button.layer.borderColor = UIColor.white.cgColor
-            button.layer.cornerRadius = 5
-            button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
-            return button
-        }
-
-        doneButton = button(title: "3", fontSize: 30)
+        doneButton = GameViewFactory.button(title: "3", fontSize: 30)
         doneButton.isHidden = true
         
-        continueButton = button(title: "Continue", fontSize: 15)
+        continueButton = GameViewFactory.button(title: "Continue", fontSize: 15)
         continueButton.isHidden = true
         
-        helpButton = button(title: "?", fontSize: 15)
+        helpButton = GameViewFactory.button(title: "?", fontSize: 15)
         helpButton.contentEdgeInsets = UIEdgeInsets(top: 3, left: 10, bottom: 3, right: 10)
         helpButton.addTarget(nil, action: .help, for: .touchUpInside)
 
-        surrenderButton = button(title: "Surrender", fontSize: 15)
+        surrenderButton = GameViewFactory.button(title: "Surrender", fontSize: 15)
         surrenderButton.contentEdgeInsets = UIEdgeInsets(top: 3, left: 5, bottom: 3, right: 5)
         surrenderButton.addTarget(nil, action: .surrender, for: .touchUpInside)
         
-        reanimateButton = button(title: "Reanimate", fontSize: 15)
+        reanimateButton = GameViewFactory.button(title: "Reanimate", fontSize: 15)
         reanimateButton.contentEdgeInsets = UIEdgeInsets(top: 3, left: 5, bottom: 3, right: 5)
         reanimateButton.addTarget(nil, action: .reanimate, for: .touchUpInside)
         reanimateButton.isEnabled = false
@@ -186,8 +92,6 @@ final class GameView: SCNView, GameViewProtocol {
         
         backgroundColor = UIColor.black
         
-//        addRedButton.addTarget(nil, action: .add, for: .touchUpInside)
-//        addWhiteButton.addTarget(nil, action: .add, for: .touchUpInside)
         doneButton.addTarget(nil, action: .done, for: .touchUpInside)
         continueButton.addTarget(nil, action: .continueWithGame, for: .touchUpInside)
         
@@ -198,7 +102,6 @@ final class GameView: SCNView, GameViewProtocol {
         scene?.rootNode.addChildNode(groundNode)
         scene?.rootNode.addChildNode(baseNode)
         scene?.rootNode.addChildNode(cameraOrbit)
-//        scene?.rootNode.addChildNode(spotLightNode)
         cameraOrbit.addChildNode(spotLightNode)
         scene?.rootNode.addChildNode(textOrbit)
 
@@ -208,32 +111,32 @@ final class GameView: SCNView, GameViewProtocol {
             }
         }
         
-        addSubview(redButtonStackView)
-        addSubview(whiteButtonStackView)
+        addSubview(remainingRedInfoStackView)
+        addSubview(remainingWhiteInfoStackView)
         addSubview(doneButton)
         addSubview(helpButton)
         addSubview(continueButton)
         addSubview(surrenderButton)
         addSubview(reanimateButton)
         
-        redButtonStackView.translatesAutoresizingMaskIntoConstraints = false
-        whiteButtonStackView.translatesAutoresizingMaskIntoConstraints = false
+        remainingRedInfoStackView.translatesAutoresizingMaskIntoConstraints = false
+        remainingWhiteInfoStackView.translatesAutoresizingMaskIntoConstraints = false
         if #available(iOSApplicationExtension 11.0, *) {
             NSLayoutConstraint.activate([
-                redButtonStackView.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 10),
-                redButtonStackView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -10),
-                whiteButtonStackView.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -10),
-                whiteButtonStackView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -10),
+                remainingRedInfoStackView.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 10),
+                remainingRedInfoStackView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -10),
+                remainingWhiteInfoStackView.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -10),
+                remainingWhiteInfoStackView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -10),
                 doneButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -10),
                 continueButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -10),
                 surrenderButton.topAnchor.constraint(equalTo: topAnchor, constant: 10),
                 ])
         } else {
             NSLayoutConstraint.activate([
-                redButtonStackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-                redButtonStackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -50),
-                whiteButtonStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-                whiteButtonStackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -50),
+                remainingRedInfoStackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+                remainingRedInfoStackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -50),
+                remainingWhiteInfoStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+                remainingWhiteInfoStackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -50),
                 doneButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -50),
                 continueButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -50),
                 ])
@@ -241,10 +144,6 @@ final class GameView: SCNView, GameViewProtocol {
         NSLayoutConstraint.activate([
             doneButton.centerXAnchor.constraint(equalTo: centerXAnchor),
             continueButton.centerXAnchor.constraint(equalTo: centerXAnchor),
-            whiteView.heightAnchor.constraint(equalToConstant: sphereIndicatorHeight),
-            whiteView.widthAnchor.constraint(equalTo: whiteView.heightAnchor),
-            redView.heightAnchor.constraint(equalToConstant: sphereIndicatorHeight),
-            redView.widthAnchor.constraint(equalTo: redView.heightAnchor),
             surrenderButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             helpButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             helpButton.topAnchor.constraint(equalTo: surrenderButton.topAnchor),
@@ -254,9 +153,6 @@ final class GameView: SCNView, GameViewProtocol {
         
         let panRecognizer = UIPanGestureRecognizer(target: self, action: #selector(pan))
         addGestureRecognizer(panRecognizer)
-        
-//        let tapRecognizer = UITapGestureRecognizer(target: nil, action: .tap)
-//        addGestureRecognizer(tapRecognizer)
         
         for _ in 0..<Board.numberOfColumns {
             var rows: [[GameSphereNode]] = []
@@ -271,8 +167,13 @@ final class GameView: SCNView, GameViewProtocol {
         fatalError("init(coder:) has not been implemented")
     }
     
+}
+
+extension GameView {
+    
     func update(with board: Board) {
         
+        // First remove all remaining shperes.
         for column in 0..<Board.numberOfColumns {
             for row in 0..<Board.numberOfColumns {
                 for sphereNode in gameSphereNodes[column][row] {
@@ -281,18 +182,14 @@ final class GameView: SCNView, GameViewProtocol {
             }
         }
         
+        // Add spheres as they are stored in the board.
         for column in 0..<Board.numberOfColumns {
             for row in 0..<Board.numberOfColumns {
                 let pole = board.poles[column][row]
                 let poleNode = poleNodes[column][row]
                 for (index, sphereColor) in pole.sphereColors.enumerated() {
                     
-                    let material = SCNMaterial()
-                    material.diffuse.contents = sphereColor.uiColor()
-                    let geometry = SCNSphere(radius: 2.6)
-                    geometry.materials = [material]
-                    
-                    let sphere = GameSphereNode(geometry: geometry, color: sphereColor)
+                    let sphere = GameSphereNode.standardSphere(color: sphereColor)
                     sphere.isMoving = false
                     var position = poleNode.position
                     position.y = 2.0 + 3.5 * Float(index)
@@ -337,12 +234,7 @@ final class GameView: SCNView, GameViewProtocol {
 
     @discardableResult func add(color sphereColor: SphereColor) -> GameSphereNode {
         
-        let material = SCNMaterial()
-        material.diffuse.contents = sphereColor.uiColor()
-        let geometry = SCNSphere(radius: 2.6)
-        geometry.materials = [material]
-        
-        let sphere = GameSphereNode(geometry: geometry, color: sphereColor)
+        let sphere = GameSphereNode.standardSphere(color: sphereColor)
         sphere.position = GameView.preAnimationStartPosition
         
 //        gameSphereNodes.append(sphere)
@@ -450,6 +342,30 @@ final class GameView: SCNView, GameViewProtocol {
     
     func hideText() {
         textNode.isHidden = true
+    }
+    
+    func showConfetti() {
+        scene?.addParticleSystem(emitter!, transform: SCNMatrix4MakeTranslation(0, 20, 0))
+        
+        let text = SCNText(string: "You won!", extrusionDepth: 1)
+        text.font = UIFont.boldSystemFont(ofSize: 5)
+        textNode.geometry = text
+        textNode.position = SCNVector3(x: -12, y: 15, z: 15)
+        textOrbit.eulerAngles.y = cameraOrbit.eulerAngles.y
+        textNode.isHidden = false
+    }
+    
+    func hideConfetti() {
+        scene?.removeParticleSystem(emitter!)
+    }
+    
+    func showLostText() {
+        let text = SCNText(string: "You lost", extrusionDepth: 1)
+        text.font = UIFont.boldSystemFont(ofSize: 5)
+        textNode.geometry = text
+        textNode.position = SCNVector3(x: -12, y: 15, z: 15)
+        textOrbit.eulerAngles.y = cameraOrbit.eulerAngles.y
+        textNode.isHidden = false
     }
 }
 

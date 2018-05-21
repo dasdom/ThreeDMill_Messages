@@ -22,4 +22,13 @@ public final class GameSphereNode: SCNNode {
     public required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    public class func standardSphere(color: SphereColor) -> GameSphereNode {
+        let material = SCNMaterial()
+        material.diffuse.contents = color.uiColor()
+        let geometry = SCNSphere(radius: 2.6)
+        geometry.materials = [material]
+        
+        return self.init(geometry: geometry, color: color)
+    }
 }

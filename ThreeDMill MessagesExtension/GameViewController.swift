@@ -80,8 +80,8 @@ final class GameViewController: UIViewController {
         }
         
         if case .move = board.mode {
-            contentView.whiteButtonStackView.isHidden = true
-            contentView.redButtonStackView.isHidden = true
+            contentView.remainingWhiteInfoStackView.isHidden = true
+            contentView.remainingRedInfoStackView.isHidden = true
         }
         
 //        contentView.fixCameraPosition()
@@ -100,7 +100,6 @@ final class GameViewController: UIViewController {
             
             present(alert, animated: true, completion: nil)
         }
-        
         
     }
     
@@ -150,6 +149,8 @@ extension GameViewController: ButtonActions {
         if case .showMill = board.mode {
             assert(false)
         }
+        
+        contentView.hideText()
         
         switch board.mode {
         case .removeSphere:
@@ -307,13 +308,15 @@ extension GameViewController {
                 print("do nothing")
             default:
                 if !board.canMove(for: sphereNode.color.oposit()) {
-                    timer?.invalidate()
-                    let alert = UIAlertController(title: "Congratulations", message: "You won!", preferredStyle: .alert)
+//                    timer?.invalidate()
+//                    let alert = UIAlertController(title: "Congratulations", message: "You won!", preferredStyle: .alert)
+//                    
+//                    let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+//                    alert.addAction(okAction)
+//                    
+//                    present(alert, animated: true, completion: nil)
                     
-                    let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
-                    alert.addAction(okAction)
-                    
-                    present(alert, animated: true, completion: nil)
+                    contentView.showConfetti()
                 }
             }
         }
@@ -491,6 +494,11 @@ extension GameViewController {
             DispatchQueue.main.async {
                 self.contentView.reanimateButton.isEnabled = true
             }
+            
+            if !self.board.canMove(for: sphereNode.color.oposit()) {
+                self.contentView.showLostText()
+            }
+            
         }
         
         sphereNode.isMoving = false
