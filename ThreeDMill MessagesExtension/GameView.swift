@@ -7,7 +7,7 @@ import SceneKit
 import ThreeDMillBoard
 
 protocol GameViewProtocol: class {
-    func add(color: SphereColor) -> GameSphereNode
+    func insert(color: SphereColor) -> GameSphereNode
     func pole(for node: SCNNode) -> (Int, Int)?
 }
 
@@ -33,6 +33,7 @@ final class GameView: SCNView, GameViewProtocol {
     let surrenderButton: UIButton
     let reanimateButton: UIButton
     let emitter = SCNParticleSystem(named: "confetti", inDirectory: nil)
+    let infoView: UIView
     static let startY: Float = 25.0
     static let preAnimationStartPosition = SCNVector3(x: 0, y: GameView.startY+20, z: 0)
     static let startPosition = SCNVector3(x: 0, y: GameView.startY, z: 0)
@@ -232,7 +233,7 @@ extension GameView {
         }
     }
 
-    @discardableResult func add(color sphereColor: SphereColor) -> GameSphereNode {
+    @discardableResult func insert(color sphereColor: SphereColor) -> GameSphereNode {
         
         let sphere = GameSphereNode.standardSphere(color: sphereColor)
         sphere.position = GameView.preAnimationStartPosition

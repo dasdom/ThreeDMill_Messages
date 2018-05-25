@@ -66,12 +66,8 @@ final class GameViewController: UIViewController {
         notification = NotificationCenter.default.addObserver(forName: .numberOfRemainingSpheresChanged, object: nil, queue: OperationQueue.main) { notification in
             
             let userInfo = notification.userInfo
-            guard let remainingWhiteSpheres = userInfo?[SphereColor.w] as? Int else {
-                fatalError()
-            }
-            guard let remainingRedSpheres = userInfo?[SphereColor.r] as? Int else {
-                fatalError()
-            }
+            let remainingWhiteSpheres = userInfo?[SphereColor.w] as! Int
+            let remainingRedSpheres = userInfo?[SphereColor.r] as! Int
             
             self.activateAddButton = remainingWhiteSpheres + remainingRedSpheres > 0
             
@@ -84,7 +80,6 @@ final class GameViewController: UIViewController {
             contentView.remainingRedInfoStackView.isHidden = true
         }
         
-//        contentView.fixCameraPosition()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -129,16 +124,11 @@ final class GameViewController: UIViewController {
 extension GameViewController: ButtonActions {
     
     func add(_ color: SphereColor) {
-        contentView.add(color: color)
+        contentView.insert(color: color)
     }
     
     // MARK: Actions
     func done(sender: UIButton!) {
-//        let sphereNodes = contentView.scene?.rootNode.childNodes(passingTest: { node, stop -> Bool in
-//            guard let gameSphereNode = node as? GameSphereNode else { return false }
-//            return gameSphereNode.isMoving
-//        })
-//        guard let sphereNode = sphereNodes?.first as? GameSphereNode else { return }
         
         guard let sphereNode = self.movingSphereNode() else { return }
         
@@ -408,12 +398,6 @@ extension GameViewController {
     }
     
     func removeSphere(fromColumn column: Int, row: Int) {
-        
-//        let fadeDuration: Double = 1.0
-//
-//        self.contentView.fadeAllBut(result: self.board.lastMill)
-//
-//        DispatchQueue.main.asyncAfter(deadline: DispatchTime(uptimeNanoseconds: NSEC_PER_SEC * UInt64(fadeDuration))) {
 
             let poleNode = self.contentView.poleNode(column: column, row: row)
             var position = poleNode.position
@@ -561,19 +545,6 @@ extension GameViewController {
             
             self.board.mode = .showMill(color: sphereColorToRemove)
             
-//            let alertController = UIAlertController(title: "Mill", message: "Mill: \(result)\nYou can now remove a \(colorToRemove) sphere from the board.", preferredStyle: .alert)
-//
-//            let okAction = UIAlertAction(title: "OK", style: .default, handler: { action in
-//
-//                let columnAndRows = self.board.columnsRowsWithRemovableSpheresFor(sphereColor: sphereColorToRemove)
-//                print("columnAndRows: \(columnAndRows)")
-//                self.contentView.color(polesColumnAndRows: columnAndRows)
-//
-//            })
-          
-//            alertController.addAction(okAction)
-//            present(alertController, animated: true, completion: nil)
-            
             contentView.fadeAllBut(result: result, toOpacity: 0.3)
             
             contentView.continueButton.isHidden = false
@@ -673,7 +644,7 @@ extension GameViewController {
             
             let previousCompletion = completion
             if move.from.column < 0 {
-                let sphereNode = contentView.add(color: move.color)
+                let sphereNode = contentView.insert(color: move.color)
                 
                 let column = move.to.column
                 let row = move.to.row
