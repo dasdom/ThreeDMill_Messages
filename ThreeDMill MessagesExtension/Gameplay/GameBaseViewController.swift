@@ -10,16 +10,12 @@ import ThreeDMillBoard
 class GameBaseViewController: UIViewController, GameViewAnimationProtocol {
     
     lazy var board = Board()
-    private var notification: NSObjectProtocol?
-    private var activateAddButton = true
-//    var timer: Timer?
-//    var timerStartDate: Date?
     weak var delegate: GameViewControllerProtocol?
     private var aSphereIsMoving = false
-    private var lastResult: [(Int, Int, Int)]?
+    var lastResult: [(Int, Int, Int)]?
     private var modeBeforeMillWasShown: BoardMode?
     
-    var contentView: GameView { return view as! GameView }
+    var contentView: GameBaseView { return view as! GameBaseView }
     
     init(board: Board) {
         
@@ -33,7 +29,7 @@ class GameBaseViewController: UIViewController, GameViewAnimationProtocol {
     }
     
     override func loadView() {
-        let contentView = GameView(frame: .zero, options: nil)
+        let contentView = GameBaseView(frame: .zero, options: nil)
         let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(tap(sender:)))
         contentView.addGestureRecognizer(tapRecognizer)
         view = contentView
@@ -46,54 +42,21 @@ class GameBaseViewController: UIViewController, GameViewAnimationProtocol {
         
         print("lastMill: \(String(describing: board.lastMill))")
         
-        if let _ = board.lastMill {
-            contentView.continueButton.setTitle("Show mill", for: .normal)
-            contentView.continueButton.isHidden = false
-        }
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
         NSLayoutConstraint.activate([
-            contentView.surrenderButton.topAnchor.constraint(equalTo: topLayoutGuide.bottomAnchor, constant: 10)
+            contentView.tutorialButton.topAnchor.constraint(equalTo: topLayoutGuide.bottomAnchor, constant: 10),
+            contentView.infoTextView.bottomAnchor.constraint(equalTo: bottomLayoutGuide.topAnchor, constant: -10)
             ])
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-       
-        if case .move = board.mode {
-            contentView.remainingWhiteInfoStackView.isHidden = true
-            contentView.remainingRedInfoStackView.isHidden = true
-        } else {
-            notification = NotificationCenter.default.addObserver(forName: .numberOfRemainingSpheresChanged, object: nil, queue: OperationQueue.main) { notification in
-                
-                let userInfo = notification.userInfo
-                let remainingWhiteSpheres = userInfo?[SphereColor.w] as! Int
-                let remainingRedSpheres = userInfo?[SphereColor.r] as! Int
-                
-                self.activateAddButton = remainingWhiteSpheres + remainingRedSpheres > 0
-                
-                self.contentView.remainingWhiteSpheresLabel.text = "\(remainingWhiteSpheres)"
-                self.contentView.remainingRedSpheresLabel.text = "\(remainingRedSpheres)"
-            }
-        }
-        
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
         animateLastMoves()
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        
-        if let _ = notification {
-            NotificationCenter.default.removeObserver(notification as Any)
-        }
     }
     
     override var shouldAutorotate: Bool {
@@ -136,7 +99,7 @@ class GameBaseViewController: UIViewController, GameViewAnimationProtocol {
             
             contentView.fadeAllBut(result: result, toOpacity: 0.3)
             
-            contentView.continueButton.isHidden = false
+//            contentView.continueButton.isHidden = false
             
             contentView.showText()
             
@@ -157,8 +120,6 @@ extension GameBaseViewController {
             return
         }
         
-        contentView.reanimateButton.isEnabled = false
-
         let location = sender.location(in: contentView)
         
         let hitResult = contentView.hitTest(location, options: nil)
@@ -190,13 +151,13 @@ extension GameBaseViewController {
     
     private func actionToMove(to poleNode: SCNNode, duration: TimeInterval = 0.3) -> SCNAction {
         var position = poleNode.position
-        position.y = GameView.startY
+        position.y = GameBaseView.startY
         return SCNAction.move(to: position, duration: duration)
     }
     
     private func actionToMoveUp(sphere: GameSphereNode, duration: TimeInterval = 0.3) -> SCNAction {
         var spherePosition = sphere.position
-        spherePosition.y = GameView.startY
+        spherePosition.y = GameBaseView.startY
         return SCNAction.move(to: spherePosition, duration: duration)
     }
     
@@ -242,25 +203,12 @@ extension GameBaseViewController {
         let moveDown = actionToMoveDown(to: pole, column: column, row: row)
 
         if sphereNode.position.y < 20 {
-//            let (columnToRemove, rowToRemove) = contentView.columnAndRow(for: sphereNode)
-//            removeSphere(column: columnToRemove, row: rowToRemove)
-//
-//            let moveUp = actionToMoveUp(sphere: sphereNode)
-//            move = SCNAction.sequence([moveUp, moveToPole, moveDown])
-//
-//            add(sphere: sphereNode, column: column, row: row)
             return
-        } else {
-//            timer?.invalidate()
-//            timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(updateButton), userInfo: nil, repeats: true)
-//            timerStartDate = Date()
-        
-            move = SCNAction.sequence([moveToPole, moveDown])
-
-            addShereToBoard(sphere: sphereNode, column: column, row: row)
-            
         }
-
+        
+        move = SCNAction.sequence([moveToPole, moveDown])
+        
+        addShereToBoard(sphere: sphereNode, column: column, row: row)
         
         move.timingMode = .easeOut
         aSphereIsMoving = true
@@ -373,39 +321,36 @@ extension GameBaseViewController {
     }
     
     func removeSphere(fromColumn column: Int, row: Int) {
-
-            let poleNode = self.contentView.poleNode(column: column, row: row)
-            var position = poleNode.position
-            position.y = 20
-            let wait1 = SCNAction.wait(duration: 0.5)
-            let moveUp = SCNAction.move(to: position, duration: 0.3)
-            let wait2 = SCNAction.wait(duration: 0.1)
-            let fade = SCNAction.fadeOpacity(to: 0.1, duration: 0.1)
-            let remove = SCNAction.removeFromParentNode()
-            remove.timingMode = .easeOut
-            let cleanUp = SCNAction.run { _ in
-                try? self.board.removeSphereFrom(column: column, andRow: row, updateCounts: false)
-                //            self.board.mode = .addSpheres
-            }
-            let moveAndRemove = SCNAction.sequence([wait1, moveUp, wait2, fade, remove, cleanUp])
-            
-            let sphereNode = self.contentView.removeTopSphereAt(column: column, row: row)
-            self.aSphereIsMoving = true
-            sphereNode?.runAction(moveAndRemove) {
-                
-                if case .showMill = self.board.mode {
-                    assert(false)
-                }
-                
-                self.insertSphereIfNeeded(sphereColor: sphereNode?.color.oposit(), mode: self.board.mode)
-                self.presentMoveAlertIfNeeded()
-                self.aSphereIsMoving = false
-                
-                DispatchQueue.main.async {
-                    self.contentView.reanimateButton.isEnabled = true
-                }
+        
+        let poleNode = self.contentView.poleNode(column: column, row: row)
+        var position = poleNode.position
+        position.y = 20
+        let wait1 = SCNAction.wait(duration: 0.5)
+        let moveUp = SCNAction.move(to: position, duration: 0.3)
+        let wait2 = SCNAction.wait(duration: 0.1)
+        let fade = SCNAction.fadeOpacity(to: 0.1, duration: 0.1)
+        let remove = SCNAction.removeFromParentNode()
+        remove.timingMode = .easeOut
+        let cleanUp = SCNAction.run { _ in
+            try? self.board.removeSphereFrom(column: column, andRow: row, updateCounts: false)
+            //            self.board.mode = .addSpheres
         }
-//        }
+        let moveAndRemove = SCNAction.sequence([wait1, moveUp, wait2, fade, remove, cleanUp])
+        
+        let sphereNode = self.contentView.removeTopSphereAt(column: column, row: row)
+        self.aSphereIsMoving = true
+        sphereNode?.runAction(moveAndRemove) {
+            
+            if case .showMill = self.board.mode {
+                assert(false)
+            }
+            
+            self.insertSphereIfNeeded(sphereColor: sphereNode?.color.oposit(), mode: self.board.mode)
+            self.presentMoveAlertIfNeeded()
+            self.aSphereIsMoving = false
+            
+            self.didFinishMoveAnimation()
+        }
     }
     
     func moveSphere(fromColumn: Int, fromRow: Int, toColumn: Int, toRow: Int, completionHandler: (() -> Void)?) {
@@ -441,9 +386,7 @@ extension GameBaseViewController {
             
             self.aSphereIsMoving = false
             
-            DispatchQueue.main.async {
-                self.contentView.reanimateButton.isEnabled = true
-            }
+            self.didFinishMoveAnimation()
             
             if !self.board.canMove(for: sphereNode.color.oposit()) {
                 self.contentView.showLostText()
@@ -453,17 +396,6 @@ extension GameBaseViewController {
         
         sphereNode.isMoving = false
     }
-    
-//    @objc func updateButton() {
-//        guard let interval = timerStartDate?.timeIntervalSinceNow else { return }
-//        let remaining = 10+Int(interval)
-//        if remaining < 0 {
-//            (self as? ButtonActions)?.done(sender: nil)
-//        } else {
-//            contentView.doneButton.isHidden = false
-//        }
-//        contentView.doneButton.setTitle("\(remaining)", for: .normal)
-//    }
     
     private func removeSphereFrom(node: SCNNode, column: Int, row: Int) {
         
@@ -495,12 +427,6 @@ extension GameBaseViewController {
         
     }
     
-//    func stopTimer() {
-//        contentView.doneButton.isHidden = true
-//        timerStartDate = nil
-//        timer?.invalidate()
-//    }
-    
     @objc func continueWithGame(sender: UIButton!) {
         
         if let result = lastResult {
@@ -513,8 +439,6 @@ extension GameBaseViewController {
                 print("columnAndRows: \(columnAndRows)")
                 self.contentView.color(polesColumnAndRows: columnAndRows)
                 
-                contentView.continueButton.isHidden = true
-                
                 contentView.hideText()
                 
                 board.mode = .removeSphere
@@ -525,14 +449,10 @@ extension GameBaseViewController {
             if case .showMill(color: _) = board.mode {
                 contentView.fadeAllBut(result: lastMill, toOpacity: 1.0)
 
-                contentView.continueButton.isHidden = true
-
                 board.mode = modeBeforeMillWasShown!
             } else {
                 contentView.fadeAllBut(result: lastMill, toOpacity: 0.3)
-                
-                contentView.continueButton.isHidden = false
-                
+                                
                 modeBeforeMillWasShown = board.mode
                 board.mode = .showMill(color: .w)
             }

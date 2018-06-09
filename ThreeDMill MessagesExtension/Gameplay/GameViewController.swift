@@ -7,6 +7,46 @@ import ThreeDMillBoard
 
 class GameViewController: GameBaseViewController {
 
+    override var contentView: GameView { return view as! GameView }
+    private var notification: NSObjectProtocol?
+
+    override func loadView() {
+        let contentView = GameView(frame: .zero, options: nil)
+        let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(tap(sender:)))
+        contentView.addGestureRecognizer(tapRecognizer)
+        view = contentView
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        if let _ = board.lastMill {
+            contentView.continueButton.setTitle("Show mill", for: .normal)
+            contentView.continueButton.isHidden = false
+        }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        if case .move = board.mode {
+            contentView.remainingWhiteInfoStackView.isHidden = true
+            contentView.remainingRedInfoStackView.isHidden = true
+        } else {
+            notification = NotificationCenter.default.addObserver(forName: .numberOfRemainingSpheresChanged, object: nil, queue: OperationQueue.main) { notification in
+                
+                let userInfo = notification.userInfo
+                let remainingWhiteSpheres = userInfo?[SphereColor.w] as! Int
+                let remainingRedSpheres = userInfo?[SphereColor.r] as! Int
+                
+//                self.activateAddButton = remainingWhiteSpheres + remainingRedSpheres > 0
+                
+                self.contentView.remainingWhiteSpheresLabel.text = "\(remainingWhiteSpheres)"
+                self.contentView.remainingRedSpheresLabel.text = "\(remainingRedSpheres)"
+            }
+        }
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
                 
@@ -17,6 +57,18 @@ class GameViewController: GameBaseViewController {
             alert.addAction(okAction)
             
             present(alert, animated: true, completion: nil)
+        }
+        
+        contentView.surrenderButton.addTarget(self, action: #selector(surrender(sender:)), for: .touchUpInside)
+        contentView.reanimateButton.addTarget(self, action: #selector(reanimate(sender:)), for: .touchUpInside)
+        
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        if let _ = notification {
+            NotificationCenter.default.removeObserver(notification as Any)
         }
     }
     
@@ -42,15 +94,55 @@ class GameViewController: GameBaseViewController {
         }
     }
     
+    override func tap(sender: UITapGestureRecognizer) {
+        super.tap(sender: sender)
+        
+        contentView.reanimateButton.isEnabled = false
+    }
+    
     override func didFinishMoveAnimation() {
         
         DispatchQueue.main.async {
             self.contentView.reanimateButton.isEnabled = true
         }
     }
+    
+    override func mill(on board: Board, sphereNode: GameSphereNode) -> Bool {
+        let hadMill = super.mill(on: board, sphereNode: sphereNode)
+        if hadMill {
+            contentView.continueButton.isHidden = false
+        }
+        return hadMill
+    }
+    
+    @objc override func continueWithGame(sender: UIButton!) {
+        
+        super.continueWithGame(sender: sender)
+        
+        if let _ = lastResult {
+            
+            if case .showMill = board.mode {
+                
+                contentView.continueButton.isHidden = true
+                
+            }
+            
+        } else if let _ = board.lastMill {
+            
+            if case .showMill = board.mode {
+                
+                contentView.continueButton.isHidden = true
+                
+            } else {
+                
+                contentView.continueButton.isHidden = false
+                
+            }
+        }
+    }
 }
 
-extension GameViewController: ButtonActions {
+extension GameViewController: GameBaseViewActions {
     
     func add(_ color: SphereColor) {
         contentView.insert(color: color)
@@ -58,14 +150,12 @@ extension GameViewController: ButtonActions {
     
     // MARK: Actions
     
-    func surrender(sender: UIButton!) {
+    @objc func surrender(sender: UIButton!) {
         board.mode = .surrender
         delegate?.gameViewController(self, didFinishMoveWith: board)
     }
     
     func help(sender: UIButton!) {
-//        let helpViewController = HelpViewController(board: board)
-        //        helpViewController.gameViewController = self
         let nextViewController = TutorialViewController(board: Board())
         nextViewController.tutorialItems = [
             TutorialItem(text: "Tap a pole to move the sphere to that pole.", afterDoneText: "Nice! Tap anywhere to continue."),
@@ -88,11 +178,10 @@ extension GameViewController: ButtonActions {
                          continueAfterMill: true,
                          continueAfterDone: true),
         ]
-//        let navigationController = UINavigationController(rootViewController: nextViewController)
         present(nextViewController, animated: true, completion: nil)
     }
     
-    func reanimate(sender: UIButton!) {
+    @objc func reanimate(sender: UIButton!) {
         
         sender.isEnabled = false
         

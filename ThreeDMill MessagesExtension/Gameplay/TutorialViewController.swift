@@ -34,8 +34,8 @@ class TutorialViewController: GameBaseViewController {
         board = Board(url: item.url)
         contentView.update(with: board)
         
-        contentView.infoLabel.text = item.text
-        contentView.infoLabel.isHidden = false
+        contentView.infoTextView.text = item.text
+        contentView.infoTextView.isHidden = false
         
         if currentTutorialItem > 0 {
             animateLastMoves()
@@ -46,8 +46,8 @@ class TutorialViewController: GameBaseViewController {
         let item = tutorialItems[currentTutorialItem]
         
         if let _ = item.afterDoneText {
-            contentView.infoLabel.text = item.afterDoneText
-            contentView.infoLabel.isHidden = false
+            contentView.infoTextView.text = item.afterDoneText
+            contentView.infoTextView.isHidden = false
         }
         if item.continueAfterDone {
             shouldContinue = true
@@ -78,8 +78,8 @@ class TutorialViewController: GameBaseViewController {
         let item = tutorialItems[currentTutorialItem]
         
         if let _ = item.afterMillText {
-            contentView.infoLabel.text = item.afterMillText
-            contentView.infoLabel.isHidden = false
+            contentView.infoTextView.text = item.afterMillText
+            contentView.infoTextView.isHidden = false
         }
         if item.continueAfterMill {
             shouldContinue = true
