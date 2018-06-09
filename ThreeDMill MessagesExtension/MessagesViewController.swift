@@ -121,20 +121,29 @@ class MessagesViewController: MSMessagesAppViewController {
 }
 
 extension MessagesViewController: GameViewControllerProtocol {
-    func gameViewController(_ controller: GameViewController, didFinishMoveWith board: Board) {
+   func gameViewController(_ controller: Screenshotable, didFinishMoveWith board: Board) {
         
         guard let conversation = activeConversation else { fatalError("Expected a conversation") }
 
         let image = controller.screenshot()
         
         let message = composeMessage(with: board, caption: "Your turn!", image: image, session: conversation.selectedMessage?.session)
-        
+    
+    if #available(iOSApplicationExtension 11.0, *) {
+        conversation.send(message) { error in
+            if let error = error {
+                print(error)
+            }
+        }
+    } else {
         conversation.insert(message) { error in
             if let error = error {
                 print(error)
             }
         }
-        
+    }
+    
+    
         dismiss()
     }
 }

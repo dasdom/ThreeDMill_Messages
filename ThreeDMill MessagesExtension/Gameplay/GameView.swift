@@ -17,7 +17,7 @@ final class GameView: SCNView, GameViewProtocol {
     let cameraOrbit: SCNNode
     let spotLightNode: SCNNode
     let baseNode: SCNNode
-    let poleNodes: [[SCNNode]]
+    var poleNodes: [[SCNNode]]
     let textNode: SCNNode
     let textOrbit: SCNNode
     private var startAngleY: Float = 0.0
@@ -25,7 +25,7 @@ final class GameView: SCNView, GameViewProtocol {
     let remainingWhiteSpheresLabel: UILabel
     let remainingWhiteInfoStackView: UIStackView
     let doneButton: UIButton
-    let helpButton: UIButton
+    let tutorialButton: UIButton
     let continueButton: UIButton
     let remainingRedSpheresLabel: UILabel
     let remainingRedInfoStackView: UIStackView
@@ -33,7 +33,7 @@ final class GameView: SCNView, GameViewProtocol {
     let surrenderButton: UIButton
     let reanimateButton: UIButton
     let emitter = SCNParticleSystem(named: "confetti", inDirectory: nil)
-    let infoView: UIView
+    let infoLabel: UILabel
     static let startY: Float = 25.0
     static let preAnimationStartPosition = SCNVector3(x: 0, y: GameView.startY+20, z: 0)
     static let startPosition = SCNVector3(x: 0, y: GameView.startY, z: 0)
@@ -76,9 +76,9 @@ final class GameView: SCNView, GameViewProtocol {
         continueButton = GameViewFactory.button(title: "Continue", fontSize: 15)
         continueButton.isHidden = true
         
-        helpButton = GameViewFactory.button(title: "?", fontSize: 15)
-        helpButton.contentEdgeInsets = UIEdgeInsets(top: 3, left: 10, bottom: 3, right: 10)
-        helpButton.addTarget(nil, action: .help, for: .touchUpInside)
+        tutorialButton = GameViewFactory.button(title: "Tutorial", fontSize: 15)
+        tutorialButton.contentEdgeInsets = UIEdgeInsets(top: 3, left: 5, bottom: 3, right: 5)
+        tutorialButton.addTarget(nil, action: .help, for: .touchUpInside)
 
         surrenderButton = GameViewFactory.button(title: "Surrender", fontSize: 15)
         surrenderButton.contentEdgeInsets = UIEdgeInsets(top: 3, left: 5, bottom: 3, right: 5)
@@ -88,6 +88,13 @@ final class GameView: SCNView, GameViewProtocol {
         reanimateButton.contentEdgeInsets = UIEdgeInsets(top: 3, left: 5, bottom: 3, right: 5)
         reanimateButton.addTarget(nil, action: .reanimate, for: .touchUpInside)
         reanimateButton.isEnabled = false
+        
+        infoLabel = UILabel()
+        infoLabel.translatesAutoresizingMaskIntoConstraints = false
+        infoLabel.numberOfLines = 0
+        infoLabel.backgroundColor = UIColor(white: 0.3, alpha: 0.6)
+        infoLabel.textColor = UIColor.white
+        infoLabel.isHidden = true
         
         super.init(frame: frame, options: options)
         
@@ -115,10 +122,11 @@ final class GameView: SCNView, GameViewProtocol {
         addSubview(remainingRedInfoStackView)
         addSubview(remainingWhiteInfoStackView)
         addSubview(doneButton)
-        addSubview(helpButton)
+        addSubview(tutorialButton)
         addSubview(continueButton)
         addSubview(surrenderButton)
         addSubview(reanimateButton)
+        addSubview(infoLabel)
         
         remainingRedInfoStackView.translatesAutoresizingMaskIntoConstraints = false
         remainingWhiteInfoStackView.translatesAutoresizingMaskIntoConstraints = false
@@ -146,10 +154,13 @@ final class GameView: SCNView, GameViewProtocol {
             doneButton.centerXAnchor.constraint(equalTo: centerXAnchor),
             continueButton.centerXAnchor.constraint(equalTo: centerXAnchor),
             surrenderButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            helpButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            helpButton.topAnchor.constraint(equalTo: surrenderButton.topAnchor),
+            tutorialButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            tutorialButton.topAnchor.constraint(equalTo: surrenderButton.topAnchor),
             reanimateButton.leadingAnchor.constraint(equalTo: surrenderButton.trailingAnchor, constant: 10),
             reanimateButton.topAnchor.constraint(equalTo: surrenderButton.topAnchor),
+            infoLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            infoLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            infoLabel.bottomAnchor.constraint(equalTo: remainingRedInfoStackView.topAnchor, constant: -10)
             ])
         
         let panRecognizer = UIPanGestureRecognizer(target: self, action: #selector(pan))
@@ -302,6 +313,24 @@ extension GameView {
         }
     }
     
+    func resetPoleColor() {
+        let allPoles = poleNodes.flatMap { return $0 }
+        for pole in allPoles {
+            pole.geometry?.materials = [GameNodeFactory.poleMaterial()]
+        }
+    }
+    
+    func emptyPoles() {
+        for column in 0..<Board.numberOfColumns {
+            for row in 0..<Board.numberOfColumns {
+                gameSphereNodes[column][row].forEach({ node in
+                    node.removeFromParentNode()
+                })
+                gameSphereNodes[column][row].removeAll()
+            }
+        }
+    }
+    
     func fadeAllBut(result: [(Int, Int, Int)], toOpacity: CGFloat) {
 //        let poleMaterial = SCNMaterial()
 //        poleMaterial.diffuse.contents = UIColor.green.withAlphaComponent(0.4)
@@ -323,13 +352,15 @@ extension GameView {
                 
                 for (index, sphereNode) in gameSphereNodes[column][row].enumerated() {
                     let sphereId = "\(column)\(row)\(index)"
-                    if sphereIds.contains(sphereId) {
-                        continue
-                    }
+                    if !sphereIds.contains(sphereId) {
+                        print("sphereId: \(sphereId)")
+//                        continue
+                    
                     let fade = SCNAction.fadeOpacity(to: toOpacity, duration: 0.5)
                     sphereNode.runAction(fade, completionHandler: {
                         sphereNode.castsShadow = toOpacity > 0.5
                     })
+                    }
                 }
             }
         }

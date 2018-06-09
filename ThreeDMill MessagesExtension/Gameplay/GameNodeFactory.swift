@@ -66,6 +66,12 @@ struct GameNodeFactory {
         return baseNode
     }
     
+    static func poleMaterial() -> SCNMaterial {
+        let material = SCNMaterial()
+        material.diffuse.contents = UIColor.yellow.withAlphaComponent(0.8)
+        return material
+    }
+    
     static func poles(columns: Int) -> [[SCNNode]] {
         
         let boardWidth: Float = 22
@@ -76,9 +82,7 @@ struct GameNodeFactory {
             var columnNodes: [SCNNode] = []
             for i in 0..<columns {
                 let poleGeometry = SCNCylinder(radius: 1.4, height: 24)
-                let poleMaterial = SCNMaterial()
-                poleMaterial.diffuse.contents = UIColor.yellow.withAlphaComponent(0.8)
-                poleGeometry.materials = [poleMaterial]
+                poleGeometry.materials = [poleMaterial()]
                 let poleNode = SCNNode(geometry: poleGeometry)
                 poleNode.position = SCNVector3(x: poleSpacing*Float(i) - boardWidth/2.0, y: 5, z: poleSpacing*Float(j) - boardWidth/2.0)
                 
