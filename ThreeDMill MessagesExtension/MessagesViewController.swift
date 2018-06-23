@@ -8,6 +8,8 @@ import ThreeDMillBoard
 
 class MessagesViewController: MSMessagesAppViewController {
     
+    var mainController: UIViewController?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
@@ -41,6 +43,14 @@ class MessagesViewController: MSMessagesAppViewController {
         // extension on a remote device.
         
         // Use this method to trigger UI updates in response to the message.
+        
+        if let gameController = mainController as? GameViewController,
+            let board = Board(message: message) {
+            
+            gameController.board = board
+            
+            gameController.animateLastMoves()
+        }
     }
     
     override func didStartSending(_ message: MSMessage, conversation: MSConversation) {
@@ -74,12 +84,20 @@ class MessagesViewController: MSMessagesAppViewController {
             
             controller = NotYourTurnViewController()
         } else {
-            let board = Board(message: conversation.selectedMessage) ?? Board()
-            let gameController = GameViewController(board: board)
-            gameController.delegate = self
-            controller = gameController
+            let board = Board(message: conversation.selectedMessage)
+            if let unwrappedBoard = board {
+                let gameBoard = unwrappedBoard.url.absoluteString.contains("start") ? Board() : unwrappedBoard
+                let gameController = GameViewController(board: gameBoard)
+                gameController.delegate = self
+                controller = gameController
+            } else {
+                let startController = StartViewController(board: Board())
+                startController.delegate = self
+                controller = startController
+            }
         }
         
+        mainController = controller
         
         addChildViewController(controller)
         
@@ -109,7 +127,7 @@ class MessagesViewController: MSMessagesAppViewController {
         
         let layout = MSMessageTemplateLayout()
         layout.image = image
-        layout.caption = caption
+//        layout.caption = caption
         
         let message = MSMessage(session: session ?? MSSession())
 //        let message = MSMessage()

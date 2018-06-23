@@ -15,6 +15,7 @@ public enum BoardMode {
     case removeSphere
     case move(color: SphereColor)
     case surrender
+    case finish
 }
 
 public final class Board {
@@ -350,10 +351,18 @@ extension Board {
 
 extension Board {
     public convenience init?(message: MSMessage?) {
-//        guard let messageURL = message?.url else { return nil }
+        guard let messageURL = message?.url else { return nil }
       
-        guard let messageURL = message?.url ??
-            URL(string: "?3,1=w&0,0=w,r&0,1=w,r&0,2=w&1,0=w,r&1,1=w,r&1,2=w,r&1,3=w,r&-1,-1,-1,0,2,1=r&remainingRed=1&remainingWhite=1&seenMills=100.110.120.130,101.111.121.131") else { return nil }
+//        guard let messageURL = message?.url ??
+//            URL(string: "?3,0=w&3,1=w&3,2=w&2,0=r&2,1=r&2,2=r&-1,-1,-1,2,3,0=r&remainingRed=1&remainingWhite=1&seenMills=200.210.220.230") else { return nil }
+        
+//        guard let messageURL = message?.url ??
+//            URL(string: "?3,0=w&3,1=w&3,2=w&2,0=r,w&2,1=r,w&2,2=r,w&-1,-1,-1,1,3,0=r&remainingRed=0&remainingWhite=1&seenMills=200.210.220.230") else { return nil }
+        
+//        guard let messageURL = message?.url ??
+//            URL(string: "?3,1=w&0,0=w,r&0,1=w,r&0,2=w&1,0=w,r&1,1=w,r&1,2=w,r&1,3=w,r&-1,-1,-1,0,2,1=r&remainingRed=1&remainingWhite=1&seenMills=100.110.120.130,101.111.121.131") else { return nil }
+        
+//        guard let messageURL = message?.url ??
 //            URL(string: "?3,1=w&3,2=r&0,0=w,r&0,1=w,r&0,2=w,r&1,0=w,r&1,1=w,r&1,2=w,r&1,3=w,r&-1,-1,-1,3,1,1=w&remainingRed=0&remainingWhite=0&seenMills=100.110.120.130,101.111.121.131") else { return nil }
 
         self.init(url: messageURL)

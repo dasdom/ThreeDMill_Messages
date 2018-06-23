@@ -22,6 +22,7 @@ class GameBaseView: SCNView, GameViewProtocol {
     let textOrbit: SCNNode
     private var startAngleY: Float = 0.0
     private var startPositionY: Float = 0.0
+    let doneButton: UIButton
     let tutorialButton: UIButton
     var gameSphereNodes: [[[GameSphereNode]]] = []
     let emitter = SCNParticleSystem(named: "confetti", inDirectory: nil)
@@ -53,6 +54,9 @@ class GameBaseView: SCNView, GameViewProtocol {
         
         textOrbit = SCNNode()
         textOrbit.addChildNode(textNode)
+        
+        doneButton = GameViewFactory.button(title: "3", fontSize: 30)
+        doneButton.isHidden = true
         
         tutorialButton = GameViewFactory.button(title: "Tutorial", fontSize: 15)
         tutorialButton.contentEdgeInsets = UIEdgeInsets(top: 3, left: 5, bottom: 3, right: 5)
@@ -87,16 +91,23 @@ class GameBaseView: SCNView, GameViewProtocol {
             }
         }
         
+        addSubview(doneButton)
         addSubview(tutorialButton)
         addSubview(infoTextView)
         
         if #available(iOSApplicationExtension 11.0, *) {
             NSLayoutConstraint.activate([
                 tutorialButton.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 10),
-                infoTextView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -10)
+                infoTextView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -10),
+                doneButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -10),
+                ])
+        } else {
+            NSLayoutConstraint.activate([
+                doneButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -50),
                 ])
         }
         NSLayoutConstraint.activate([
+            doneButton.centerXAnchor.constraint(equalTo: centerXAnchor),
             tutorialButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             infoTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             infoTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
@@ -118,6 +129,20 @@ class GameBaseView: SCNView, GameViewProtocol {
         fatalError("init(coder:) has not been implemented")
     }
     
+    func showLostText() {
+        let text = SCNText(string: "You lost", extrusionDepth: 1)
+        text.font = UIFont.boldSystemFont(ofSize: 5)
+        textNode.geometry = text
+        textNode.position = SCNVector3(x: -12, y: 15, z: 15)
+        textOrbit.eulerAngles.y = cameraOrbit.eulerAngles.y
+        textNode.isHidden = false
+    }
+    
+    func resetBoardVisually() {
+        DispatchQueue.main.async {
+            self.hideText()
+        }
+    }
 }
 
 extension GameBaseView {
@@ -316,22 +341,15 @@ extension GameBaseView {
     func hideConfetti() {
         scene?.removeParticleSystem(emitter!)
     }
-    
-    func showLostText() {
-        let text = SCNText(string: "You lost", extrusionDepth: 1)
-        text.font = UIFont.boldSystemFont(ofSize: 5)
-        textNode.geometry = text
-        textNode.position = SCNVector3(x: -12, y: 15, z: 15)
-        textOrbit.eulerAngles.y = cameraOrbit.eulerAngles.y
-        textNode.isHidden = false
-    }
 }
 
 @objc protocol GameBaseViewActions {
+    @objc func done(sender: UIButton!)
     @objc func help(sender: UIButton!)
 }
 
 extension Selector {
+    static let done = #selector(GameBaseViewActions.done(sender:))
     static let help = #selector(GameBaseViewActions.help(sender:))
 }
 

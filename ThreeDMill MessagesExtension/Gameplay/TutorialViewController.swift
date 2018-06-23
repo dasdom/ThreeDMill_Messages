@@ -10,6 +10,7 @@ class TutorialViewController: GameBaseViewController {
     var tutorialItems: [TutorialItem] = []
     var currentTutorialItem = 0
     var shouldContinue = false
+    private var millChecked = false
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -21,6 +22,7 @@ class TutorialViewController: GameBaseViewController {
     }
     
     func showNextTutorialItem() {
+        millChecked = false
         if tutorialItems.count <= currentTutorialItem {
             dismiss(animated: true, completion: nil)
             return
@@ -32,13 +34,22 @@ class TutorialViewController: GameBaseViewController {
         let item = tutorialItems[currentTutorialItem]
         
         board = Board(url: item.url)
-        contentView.update(with: board)
         
         contentView.infoTextView.text = item.text
         contentView.infoTextView.isHidden = false
         
         if currentTutorialItem > 0 {
             animateLastMoves()
+        }
+    }
+    
+    override func updateButton() {
+        guard let interval = timerStartDate?.timeIntervalSinceNow else { return }
+        let remaining = 0.8+interval
+        if remaining < 0, millChecked {
+            timer?.invalidate()
+            contentView.doneButton.isHidden = true
+            done(sender: nil)
         }
     }
     
@@ -75,9 +86,11 @@ class TutorialViewController: GameBaseViewController {
     
     override func mill(on board: Board, sphereNode: GameSphereNode) -> Bool {
         
+        let isMill = super.mill(on: board, sphereNode: sphereNode)
+        
         let item = tutorialItems[currentTutorialItem]
         
-        if let _ = item.afterMillText {
+        if let _ = item.afterMillText, isMill {
             contentView.infoTextView.text = item.afterMillText
             contentView.infoTextView.isHidden = false
         }
@@ -85,7 +98,8 @@ class TutorialViewController: GameBaseViewController {
             shouldContinue = true
         }
         
-        return super.mill(on: board, sphereNode: sphereNode)
+        millChecked = true
+        return isMill
     }
     
     @objc func dismiss(sender: UIButton!) {

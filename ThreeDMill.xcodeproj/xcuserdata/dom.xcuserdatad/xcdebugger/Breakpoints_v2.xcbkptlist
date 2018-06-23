@@ -20,11 +20,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ThreeDMillBoard/Board.swift"
-            timestampString = "550241587.951136"
+            timestampString = "551392494.203735"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "104"
-            endingLineNumber = "104"
+            startingLineNumber = "105"
+            endingLineNumber = "105"
             landmarkName = "url"
             landmarkType = "24">
             <Actions>
@@ -44,11 +44,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ThreeDMillBoard/Board.swift"
-            timestampString = "550241587.951341"
+            timestampString = "551392494.2039109"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "171"
-            endingLineNumber = "171"
+            startingLineNumber = "172"
+            endingLineNumber = "172"
             landmarkName = "init(url:)"
             landmarkType = "7">
             <Actions>
@@ -74,11 +74,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ThreeDMillBoard/Board.swift"
-            timestampString = "550241587.951507"
+            timestampString = "551392494.204059"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "286"
-            endingLineNumber = "286"
+            startingLineNumber = "287"
+            endingLineNumber = "287"
             landmarkName = "removeSphereFrom(column:andRow:updateCounts:)"
             landmarkType = "7">
             <Actions>
@@ -132,31 +132,15 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ThreeDMillBoard/Board.swift"
-            timestampString = "550241587.951612"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "262"
-            endingLineNumber = "262"
-            landmarkName = "removeSphereFrom(column:andRow:updateCounts:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ThreeDMillBoard/Board.swift"
-            timestampString = "550241587.95174"
+            timestampString = "551392494.204193"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "240"
-            endingLineNumber = "240"
+            startingLineNumber = "241"
+            endingLineNumber = "241"
             landmarkName = "addSphereWith(_:toColumn:andRow:updateRemainCount:)"
             landmarkType = "7">
             <Actions>
@@ -176,11 +160,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ThreeDMillBoard/Board.swift"
-            timestampString = "550241587.951836"
+            timestampString = "551392494.204324"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "243"
-            endingLineNumber = "243"
+            startingLineNumber = "244"
+            endingLineNumber = "244"
             landmarkName = "addSphereWith(_:toColumn:andRow:updateRemainCount:)"
             landmarkType = "7">
             <Actions>
