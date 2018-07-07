@@ -365,6 +365,9 @@ extension Board {
 //        guard let messageURL = message?.url ??
 //            URL(string: "?3,1=w&3,2=r&0,0=w,r&0,1=w,r&0,2=w,r&1,0=w,r&1,1=w,r&1,2=w,r&1,3=w,r&-1,-1,-1,3,1,1=w&remainingRed=0&remainingWhite=0&seenMills=100.110.120.130,101.111.121.131") else { return nil }
 
+//        guard let messageURL = message?.url ??
+//                        URL(string: "?3,0=w&3,1=r,w,r&3,2=r&3,3=w,w,r,r&2,0=w,r,w&2,1=r,r,w&2,2=r,w&2,3=r,r,w,w&1,0=r,w,w&1,1=r,w,w&1,2=w,r&1,3=r,r,w,w&0,0=r,r&0,1=w,r,w&0,2=r,w&0,3=r,r,w,w&-1,-1,-1,3,2,1=r&remainingWhite=0&remainingRed=0") else { return nil }
+        
         self.init(url: messageURL)
     }
 }

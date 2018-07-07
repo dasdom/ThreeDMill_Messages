@@ -157,8 +157,20 @@ extension GameViewController: GameBaseViewActions {
     // MARK: Actions
     
     @objc func surrender(sender: UIButton!) {
-        board.mode = .surrender
-        delegate?.gameViewController(self, didFinishMoveWith: board)
+        
+        let alert = UIAlertController(title: "Are you sure?", message: "Do you really want to surrender?", preferredStyle: .alert)
+        
+        let okAction = UIAlertAction(title: "Surrender", style: .default) { _ in
+            self.board.mode = .surrender
+            self.delegate?.gameViewController(self, didFinishMoveWith: self.board)
+        }
+        alert.addAction(okAction)
+        
+        let cancelAction = UIAlertAction(title: "Abbrechen", style: .cancel, handler: nil)
+        alert.addAction(cancelAction)
+        
+        present(alert, animated: true, completion: nil)
+        
     }
     
     @objc func reanimate(sender: UIButton!) {

@@ -12,6 +12,26 @@ class TutorialViewController: GameBaseViewController {
     var shouldContinue = false
     private var millChecked = false
     
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        let versionLabel = UILabel()
+        versionLabel.translatesAutoresizingMaskIntoConstraints = false
+        versionLabel.font = UIFont.systemFont(ofSize: 8)
+        versionLabel.textColor = UIColor.white
+        
+        guard let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String else { return }
+        guard let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String else { return }
+        versionLabel.text = "\(version) (\(build))"
+        
+        view.addSubview(versionLabel)
+        
+        NSLayoutConstraint.activate([
+            versionLabel.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            versionLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+            ])
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         

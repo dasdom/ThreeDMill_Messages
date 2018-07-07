@@ -53,14 +53,14 @@ class GameBaseViewController: UIViewController, GameViewAnimationProtocol {
         
     }
     
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        
-        NSLayoutConstraint.activate([
-            contentView.tutorialButton.topAnchor.constraint(equalTo: topLayoutGuide.bottomAnchor, constant: 10),
-            contentView.infoTextView.bottomAnchor.constraint(equalTo: bottomLayoutGuide.topAnchor, constant: -10)
-            ])
-    }
+//    override func viewDidLayoutSubviews() {
+//        super.viewDidLayoutSubviews()
+//        
+//        NSLayoutConstraint.activate([
+//            contentView.tutorialButton.topAnchor.constraint(equalTo: topLayoutGuide.bottomAnchor, constant: 10),
+//            contentView.infoTextView.bottomAnchor.constraint(equalTo: bottomLayoutGuide.topAnchor, constant: -10)
+//            ])
+//    }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -260,6 +260,11 @@ extension GameBaseViewController {
 
         if sphereNode.position.y < 20 {
             let (columnToRemove, rowToRemove) = contentView.columnAndRow(for: sphereNode)
+            
+            if columnToRemove == column, rowToRemove == row {
+                return
+            }
+            
             removeSphere(column: columnToRemove, row: rowToRemove)
             
             let moveUp = actionToMoveUp(sphere: sphereNode)
@@ -563,7 +568,17 @@ extension GameBaseViewController {
     }
     
     func presentMoveAlertIfNeeded() {
+        
+        let moveAlertAlreadyShownKey = "moveAlertAlreadyShownKey"
+        let moveAlertAlreadyShown = UserDefaults.standard.bool(forKey: moveAlertAlreadyShownKey)
+        if moveAlertAlreadyShown {
+            return
+        }
+        
+        
         if case .move = board.mode {
+            UserDefaults.standard.set(true, forKey: moveAlertAlreadyShownKey)
+            
             let alertController = UIAlertController(title: "Move", message: "All spheres are played. So now you can move your spheres to create mills.", preferredStyle: .alert)
             
             let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
@@ -571,6 +586,8 @@ extension GameBaseViewController {
             
             present(alertController, animated: true, completion: nil)
             
+        } else if case .addSpheres = board.mode {
+            UserDefaults.standard.set(false, forKey: moveAlertAlreadyShownKey)
         }
     }
     

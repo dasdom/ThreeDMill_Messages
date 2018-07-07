@@ -44,13 +44,13 @@ class MessagesViewController: MSMessagesAppViewController {
         
         // Use this method to trigger UI updates in response to the message.
         
-        if let gameController = mainController as? GameViewController,
-            let board = Board(message: message) {
-            
-            gameController.board = board
-            
-            gameController.animateLastMoves()
-        }
+//        if let gameController = mainController as? GameViewController,
+//            let board = Board(message: message) {
+//            
+//            gameController.board = board
+//            
+//            gameController.animateLastMoves()
+//        }
     }
     
     override func didStartSending(_ message: MSMessage, conversation: MSConversation) {

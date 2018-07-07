@@ -75,7 +75,7 @@ class GameBaseView: SCNView, GameViewProtocol {
         
         backgroundColor = UIColor.black
         
-        showsStatistics = true
+//        showsStatistics = true
 
         scene = SCNScene()
         
@@ -305,12 +305,12 @@ extension GameBaseView {
                     let sphereId = "\(column)\(row)\(index)"
                     if !sphereIds.contains(sphereId) {
                         print("sphereId: \(sphereId)")
-//                        continue
-                    
-                    let fade = SCNAction.fadeOpacity(to: toOpacity, duration: 0.5)
-                    sphereNode.runAction(fade, completionHandler: {
-                        sphereNode.castsShadow = toOpacity > 0.5
-                    })
+                        //                        continue
+                        
+                        let fade = SCNAction.fadeOpacity(to: toOpacity, duration: 0.5)
+                        sphereNode.runAction(fade, completionHandler: {
+                            sphereNode.castsShadow = toOpacity > 0.5
+                        })
                     }
                 }
             }
